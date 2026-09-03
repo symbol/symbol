@@ -250,7 +250,7 @@ Once confirmed, the swap is complete and both transfers have executed.
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="8 12 16 46 51 58 64"
+```text linenums="1" hl_lines="8 12 16 46 51 58 62"
 --8<-- 'devbook/transactions/complete_aggregate.log'
 ```
 
@@ -265,7 +265,7 @@ Key points in the output:
 * **Line 51** (`"payload": "6801..."`): The transaction payload computed from the aggregate transaction and its embedded
     transactions.
 * **Line 58** (`"signature": "7037..."`): Account B's cosignature for the aggregate transaction.
-* **Line 64** (`Waiting for confirmation ...`): The hash shown in the confirmation check can be used to search for the
+* **Line 62** (`Transaction hash`): The hash can be used to search for the
     transaction in the [Symbol Testnet Explorer](https://testnet.symbol.fyi/).
 
 The aggregate transaction is treated as a single atomic unit by the network.

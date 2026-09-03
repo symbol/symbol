@@ -24,7 +24,7 @@ Announcing namespace registration to /transactions
 Waiting for namespace registration confirmation...
   Transaction status: unconfirmed
   Transaction status: confirmed
-Namespace registration confirmed in 19 seconds
+namespace registration confirmed in 19 seconds
 Child namespace ID: 11305240440531381773 (0x9CE448486E40EE0D)
 Fetching namespace information from /namespaces/9CE448486E40EE0D
 Namespace information:

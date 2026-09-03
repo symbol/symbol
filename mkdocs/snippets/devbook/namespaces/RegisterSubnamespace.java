@@ -32,6 +32,59 @@ public final class RegisterSubnamespace {
 
 	private final SymbolFacade facade = new SymbolFacade("testnet");
 
+	private void announceTransaction(
+		final String payload,
+		final String label
+	) throws IOException, InterruptedException {
+		System.out.printf("Announcing %s to /transactions%n", label);
+		final HttpRequest request = HttpRequest.newBuilder(
+			URI.create(nodeUrl + "/transactions"))
+			.header("Content-Type", "application/json")
+			.PUT(HttpRequest.BodyPublishers.ofString(payload))
+			.build();
+		final HttpResponse<String> response = HTTP_CLIENT.send(
+			request, BodyHandlers.ofString());
+		System.out.printf("  Response: %s%n", response.body());
+	}
+
+	private void waitForConfirmation(
+		final String transactionHash,
+		final String label
+	) throws IOException, InterruptedException {
+		System.out.printf("Waiting for %s confirmation...%n", label);
+		for (int attempt = 0; 60 > attempt; ++attempt) {
+			Thread.sleep(1000);
+			final String statusPath =
+				"/transactionStatus/" + transactionHash;
+			final HttpRequest statusRequest = HttpRequest.newBuilder(
+				URI.create(nodeUrl + statusPath)).GET().build();
+			final HttpResponse<String> statusResponse = HTTP_CLIENT
+				.send(statusRequest, BodyHandlers.ofString());
+			if (404 == statusResponse.statusCode()) {
+				System.out.println("  Transaction status: unknown");
+				continue;
+			}
+			if (2 != statusResponse.statusCode() / 100)
+				throw new IOException(
+					"HTTP " + statusResponse.statusCode());
+
+			final JsonNode status =
+				JSON_MAPPER.readTree(statusResponse.body());
+			final String group = status.get("group").asText();
+			System.out.printf("  Transaction status: %s%n", group);
+			if ("confirmed".equals(group)) {
+				System.out.printf("%s confirmed in %d seconds%n",
+					label, attempt);
+				return;
+			}
+			if ("failed".equals(group))
+				throw new IOException(String.format("%s failed: %s",
+					label, status.get("code").asText()));
+		}
+		throw new IOException(String.format(
+			"%s not confirmed after 60 seconds", label));
+	}
+
 	public static void main(final String[] args) {
 		try {
 			new RegisterSubnamespace().run();
@@ -105,12 +158,10 @@ public final class RegisterSubnamespace {
 		System.out.printf("Transaction hash: %s%n", transactionHash);
 
 		// Announce transaction
-		announceTransaction(jsonPayload);
+		announceTransaction(jsonPayload, "namespace registration");
 
 		// Wait for confirmation
-		System.out.println(
-			"Waiting for namespace registration confirmation...");
-		waitForConfirmation(transactionHash);
+		waitForConfirmation(transactionHash, "namespace registration");
 
 		// Retrieve the namespace [>step-3]
 		final long namespaceId = IdGenerator.generateNamespaceId(
@@ -159,47 +210,4 @@ public final class RegisterSubnamespace {
 		return JSON_MAPPER.readTree(response.body());
 	}
 
-	private void announceTransaction(final String payload)
-		throws IOException, InterruptedException {
-		System.out.println(
-			"Announcing namespace registration to /transactions");
-		final HttpRequest request = HttpRequest.newBuilder(
-			URI.create(nodeUrl + "/transactions"))
-			.header("Content-Type", "application/json")
-			.PUT(HttpRequest.BodyPublishers.ofString(payload))
-			.build();
-		final HttpResponse<String> response = HTTP_CLIENT.send(
-			request, BodyHandlers.ofString());
-		System.out.printf("  Response: %s%n", response.body());
-	}
-
-	private void waitForConfirmation(final String transactionHash)
-		throws IOException, InterruptedException {
-		for (int attempt = 1; 60 >= attempt; ++attempt) {
-			Thread.sleep(1000);
-			try {
-				final JsonNode status = getJson(
-					"/transactionStatus/" + transactionHash);
-				final String group = status.get("group").asText();
-				System.out.printf("  Transaction status: %s%n", group);
-				if ("confirmed".equals(group)) {
-					System.out.printf(
-						"Transaction confirmed in %d seconds%n",
-						attempt);
-					return;
-				}
-				if ("failed".equals(group)) {
-					System.out.printf("Transaction failed: %s%n",
-						status.get("code").asText());
-					return;
-				}
-			} catch (final IOException ex) {
-				System.out.println(
-					"  Transaction status: unknown | Cause: "
-					+ ex.toString());
-			}
-			if (60 == attempt)
-				System.out.println("Confirmation took too long.");
-		}
-	}
 }

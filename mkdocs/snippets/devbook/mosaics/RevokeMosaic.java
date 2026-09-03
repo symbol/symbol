@@ -30,6 +30,59 @@ public final class RevokeMosaic {
 
 	private final SymbolFacade facade = new SymbolFacade("testnet");
 
+	private void announceTransaction(
+		final String payload,
+		final String label
+	) throws IOException, InterruptedException {
+		System.out.printf("Announcing %s to /transactions%n", label);
+		final HttpRequest request = HttpRequest.newBuilder(
+			URI.create(nodeUrl + "/transactions"))
+			.header("Content-Type", "application/json")
+			.PUT(HttpRequest.BodyPublishers.ofString(payload))
+			.build();
+		final HttpResponse<String> response = HTTP_CLIENT.send(
+			request, BodyHandlers.ofString());
+		System.out.printf("  Response: %s%n", response.body());
+	}
+
+	private void waitForConfirmation(
+		final String transactionHash,
+		final String label
+	) throws IOException, InterruptedException {
+		System.out.printf("Waiting for %s confirmation...%n", label);
+		for (int attempt = 0; 60 > attempt; ++attempt) {
+			Thread.sleep(1000);
+			final String statusPath =
+				"/transactionStatus/" + transactionHash;
+			final HttpRequest statusRequest = HttpRequest.newBuilder(
+				URI.create(nodeUrl + statusPath)).GET().build();
+			final HttpResponse<String> statusResponse = HTTP_CLIENT
+				.send(statusRequest, BodyHandlers.ofString());
+			if (404 == statusResponse.statusCode()) {
+				System.out.println("  Transaction status: unknown");
+				continue;
+			}
+			if (2 != statusResponse.statusCode() / 100)
+				throw new IOException(
+					"HTTP " + statusResponse.statusCode());
+
+			final JsonNode status =
+				JSON_MAPPER.readTree(statusResponse.body());
+			final String group = status.get("group").asText();
+			System.out.printf("  Transaction status: %s%n", group);
+			if ("confirmed".equals(group)) {
+				System.out.printf("%s confirmed in %d seconds%n",
+					label, attempt);
+				return;
+			}
+			if ("failed".equals(group))
+				throw new IOException(String.format("%s failed: %s",
+					label, status.get("code").asText()));
+		}
+		throw new IOException(String.format(
+			"%s not confirmed after 60 seconds", label));
+	}
+
 	private JsonNode getAccountMosaics(
 		final Address address
 	) throws IOException, InterruptedException {
@@ -92,6 +145,7 @@ public final class RevokeMosaic {
 			feeJson.get("minFeeMultiplier").asLong());
 		System.out.printf("  Fee multiplier: %d%n", feeMultiplier);
 		// [<step-2]
+		// --- CHECKING INITIAL BALANCE ---
 		System.out.println("\n--- Checking initial balance ---");
 
 		JsonNode mosaics = getAccountMosaics(sourceAddress); // [>step-3]
@@ -103,6 +157,7 @@ public final class RevokeMosaic {
 					mosaic.get("amount").asText());
 		}
 		// [<step-3]
+		// --- REVOKING MOSAIC ---
 		System.out.println("\n--- Revoking mosaic ---");
 
 		final Transaction revokeTx = // [>step-4]
@@ -125,56 +180,17 @@ public final class RevokeMosaic {
 		System.out.println(JSON_MAPPER.writerWithDefaultPrettyPrinter()
 			.writeValueAsString(revokeTx.toJson()));
 
-		// Announce transaction
 		final String revokeHash =
 			facade.hashTransaction(revokeTx).toString();
 		System.out.printf("Transaction hash: %s%n", revokeHash);
 
-		System.out.println(
-			"Announcing mosaic revocation to /transactions");
-		final HttpRequest request = HttpRequest.newBuilder(
-			URI.create(nodeUrl + "/transactions"))
-			.header("Content-Type", "application/json")
-			.PUT(HttpRequest.BodyPublishers.ofString(jsonPayload))
-			.build();
-		final HttpResponse<String> response = HTTP_CLIENT.send(
-			request, BodyHandlers.ofString());
-		System.out.printf("  Response: %s%n", response.body());
+		// Announce transaction
+		announceTransaction(jsonPayload, "mosaic revocation");
 		// [<step-5]
 		// Wait for confirmation [>step-6]
-		System.out.println(
-			"Waiting for mosaic revocation confirmation...");
-		for (int attempt = 0; 60 > attempt; ++attempt) {
-			Thread.sleep(1000);
-			try {
-				final String statusPath =
-					"/transactionStatus/" + revokeHash;
-				final HttpRequest statusRequest = HttpRequest.newBuilder(
-					URI.create(nodeUrl + statusPath)).GET().build();
-				final HttpResponse<String> statusResponse = HTTP_CLIENT
-					.send(statusRequest, BodyHandlers.ofString());
-				final JsonNode status =
-					JSON_MAPPER.readTree(statusResponse.body());
-				final String group = status.get("group").asText();
-				System.out.printf("  Transaction status: %s%n", group);
-				if ("confirmed".equals(group)) {
-					System.out.printf(
-						"Mosaic revocation confirmed in %d seconds%n",
-						attempt);
-					break;
-				}
-				if ("failed".equals(group))
-					throw new IOException(String.format(
-						"Mosaic revocation failed: %s",
-						status.get("code").asText()));
-			} catch (final IOException ex) {
-				if (ex.getMessage().contains("failed"))
-					throw ex;
-
-				System.out.println("  Transaction status: unknown");
-			}
-		}
+		waitForConfirmation(revokeHash, "mosaic revocation");
 		// [<step-6]
+		// --- VERIFYING REVOCATION ---
 		System.out.println("\n--- Verifying revocation ---");
 
 		mosaics = getAccountMosaics(sourceAddress); // [>step-7]

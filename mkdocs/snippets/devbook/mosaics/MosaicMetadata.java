@@ -55,31 +55,32 @@ public final class MosaicMetadata {
 		System.out.printf("Waiting for %s confirmation...%n", label);
 		for (int attempt = 0; 60 > attempt; ++attempt) {
 			Thread.sleep(1000);
-			try {
-				final String statusPath =
-					"/transactionStatus/" + transactionHash;
-				final HttpRequest statusRequest = HttpRequest.newBuilder(
-					URI.create(nodeUrl + statusPath)).GET().build();
-				final HttpResponse<String> statusResponse = HTTP_CLIENT
-					.send(statusRequest, BodyHandlers.ofString());
-				final JsonNode status =
-					JSON_MAPPER.readTree(statusResponse.body());
-				final String group = status.get("group").asText();
-				System.out.printf("  Transaction status: %s%n", group);
-				if ("confirmed".equals(group)) {
-					System.out.printf("%s confirmed in %d seconds%n",
-						label, attempt);
-					return;
-				}
-				if ("failed".equals(group))
-					throw new IOException(String.format("%s failed: %s",
-						label, status.get("code").asText()));
-			} catch (final IOException ex) {
-				if (ex.getMessage().contains("failed"))
-					throw ex;
-
+			final String statusPath =
+				"/transactionStatus/" + transactionHash;
+			final HttpRequest statusRequest = HttpRequest.newBuilder(
+				URI.create(nodeUrl + statusPath)).GET().build();
+			final HttpResponse<String> statusResponse = HTTP_CLIENT
+				.send(statusRequest, BodyHandlers.ofString());
+			if (404 == statusResponse.statusCode()) {
 				System.out.println("  Transaction status: unknown");
+				continue;
 			}
+			if (2 != statusResponse.statusCode() / 100)
+				throw new IOException(
+					"HTTP " + statusResponse.statusCode());
+
+			final JsonNode status =
+				JSON_MAPPER.readTree(statusResponse.body());
+			final String group = status.get("group").asText();
+			System.out.printf("  Transaction status: %s%n", group);
+			if ("confirmed".equals(group)) {
+				System.out.printf("%s confirmed in %d seconds%n",
+					label, attempt);
+				return;
+			}
+			if ("failed".equals(group))
+				throw new IOException(String.format("%s failed: %s",
+					label, status.get("code").asText()));
 		}
 		throw new IOException(String.format(
 			"%s not confirmed after 60 seconds", label));

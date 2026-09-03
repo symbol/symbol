@@ -33,11 +33,11 @@ print(f'Restriction name: "{restriction_name}"'
 
 
 # Helper function to announce a transaction
-def announce_transaction(announce_payload, label):
+def announce_transaction(payload, label):
 	print(f'Announcing {label} to /transactions')
 	request = urllib.request.Request(
 		f'{NODE_URL}/transactions',
-		data=announce_payload.encode(),
+		data=payload.encode(),
 		headers={'Content-Type': 'application/json'},
 		method='PUT'
 	)
@@ -181,7 +181,7 @@ try:
 	# Build an aggregate transaction
 	print(  # [>step-7]
 		'Bundling', len(transactions), 'transaction(s) in an aggregate')
-	transaction = facade.create_transaction_from_descriptor(
+	aggregate_transaction = facade.create_transaction_from_descriptor(
 		{
 			'type': 'aggregate_complete_transaction_v3',
 			'transactions_hash': facade.hash_embedded_transactions(
@@ -193,15 +193,15 @@ try:
 		2 * 60 * 60)
 	# [<step-7]
 	# Sign, announce and wait for confirmation
-	payload = facade.transaction_factory.attach_signature(  # [>step-8]
-		transaction,
-		facade.sign_transaction(owner_key_pair, transaction))
-	transaction_hash = facade.hash_transaction(transaction)
-	announce_transaction(payload, 'aggregate')
-	wait_for_confirmation(transaction_hash, 'aggregate')
+	aggregate_payload = facade.transaction_factory.attach_signature(  # [>step-8]
+		aggregate_transaction,
+		facade.sign_transaction(owner_key_pair, aggregate_transaction))
+	aggregate_hash = facade.hash_transaction(aggregate_transaction)
+	announce_transaction(aggregate_payload, 'aggregate')
+	wait_for_confirmation(aggregate_hash, 'aggregate')
 	# [<step-8]
 	# Try to transfer the mosaic to the target address
-	transaction = facade.create_transaction_from_descriptor(  # [>step-9]
+	test_transaction = facade.create_transaction_from_descriptor(  # [>step-9]
 		{
 			'type': 'transfer_transaction_v1',
 			'recipient_address': target_address,
@@ -213,13 +213,13 @@ try:
 		owner_key_pair.public_key,
 		fee_multiplier,
 		2 * 60 * 60)
-	payload = facade.transaction_factory.attach_signature(
-		transaction,
-		facade.sign_transaction(owner_key_pair, transaction))
-	transaction_hash = facade.hash_transaction(transaction)
+	test_payload = facade.transaction_factory.attach_signature(
+		test_transaction,
+		facade.sign_transaction(owner_key_pair, test_transaction))
+	test_hash = facade.hash_transaction(test_transaction)
 	print('\nAttempting transfer to the target account')
-	announce_transaction(payload, 'test transfer')
-	wait_for_confirmation(transaction_hash, 'test transfer')
+	announce_transaction(test_payload, 'test transfer')
+	wait_for_confirmation(test_hash, 'test transfer')
 	# [<step-9]
 except Exception as e:
 	print(e)

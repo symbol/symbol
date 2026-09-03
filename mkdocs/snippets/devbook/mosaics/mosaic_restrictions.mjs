@@ -52,22 +52,23 @@ async function waitForConfirmation(transactionHash, label) {
 	console.log(`Waiting for ${label} confirmation...`);
 	for (let attempt = 0; 60 > attempt; attempt++) {
 		await new Promise(resolve => { setTimeout(resolve, 1000); });
-		try {
-			const response = await fetch(
-				`${NODE_URL}/transactionStatus/${transactionHash}`);
-			const status = await response.json();
-			console.log('  Transaction status:', status.group);
-			if ('confirmed' === status.group) {
-				console.log(`${label} confirmed in`, attempt, 'seconds');
-				return;
+		const response = await fetch(
+			`${NODE_URL}/transactionStatus/${transactionHash}`);
+		if (!response.ok) {
+			if (404 === response.status) {
+				console.log('  Transaction status: unknown');
+				continue;
 			}
-			if ('failed' === status.group)
-				throw new Error(`${label} failed: ${status.code}`);
-		} catch (e) {
-			if (e.message.includes('failed'))
-				throw e;
-			console.log('  Transaction status: unknown');
+			throw new Error(`HTTP ${response.status}`);
 		}
+		const status = await response.json();
+		console.log('  Transaction status:', status.group);
+		if ('confirmed' === status.group) {
+			console.log(`${label} confirmed in`, attempt, 'seconds');
+			return;
+		}
+		if ('failed' === status.group)
+			throw new Error(`${label} failed: ${status.code}`);
 	}
 	throw new Error(`${label} not confirmed after 60 seconds`);
 }
@@ -107,16 +108,17 @@ function getMosaicAddressRestrictions(queriedMosaicId, address, key) {
 // [<step-5]
 // Returns a transaction enabling a mosaic's global restriction
 function globalRestrictionEnableTransaction() {
-	const transaction = facade.createEmbeddedTransactionFromTypedDescriptor(
-		new descriptors.MosaicGlobalRestrictionTransactionV1Descriptor(
-			new models.UnresolvedMosaicId(mosaicId),
-			new models.UnresolvedMosaicId(0n),
-			restrictionKey,
-			0n,
-			1n,
-			models.MosaicRestrictionType.NONE,
-			models.MosaicRestrictionType.GE),
-		ownerKeyPair.publicKey);
+	const transaction =
+		facade.createEmbeddedTransactionFromTypedDescriptor(
+			new descriptors.MosaicGlobalRestrictionTransactionV1Descriptor(
+				new models.UnresolvedMosaicId(mosaicId),
+				new models.UnresolvedMosaicId(0n),
+				restrictionKey,
+				0n,
+				1n,
+				models.MosaicRestrictionType.NONE,
+				models.MosaicRestrictionType.GE),
+			ownerKeyPair.publicKey);
 	console.dir(transaction.toJson(), { colors: true, depth: null });
 
 	return transaction;
@@ -124,14 +126,15 @@ function globalRestrictionEnableTransaction() {
 
 // Returns a transaction setting an address restriction's value
 function addressRestrictionSetValue(prevValue, newValue, address) {
-	const transaction = facade.createEmbeddedTransactionFromTypedDescriptor(
-		new descriptors.MosaicAddressRestrictionTransactionV1Descriptor(
-			new models.UnresolvedMosaicId(mosaicId),
-			restrictionKey,
-			prevValue,
-			newValue,
-			new SymbolFacade.Address(address)),
-		ownerKeyPair.publicKey);
+	const transaction =
+		facade.createEmbeddedTransactionFromTypedDescriptor(
+			new descriptors.MosaicAddressRestrictionTransactionV1Descriptor(
+				new models.UnresolvedMosaicId(mosaicId),
+				restrictionKey,
+				prevValue,
+				newValue,
+				new SymbolFacade.Address(address)),
+			ownerKeyPair.publicKey);
 	console.dir(transaction.toJson(), { colors: true, depth: null });
 
 	return transaction;
@@ -186,25 +189,27 @@ try {
 	// Build an aggregate transaction
 	console.log('Bundling', transactions.length, // [>step-7]
 		'transaction(s) in an aggregate');
-	const aggregate = facade.createTransactionFromTypedDescriptor(
-		new descriptors.AggregateCompleteTransactionV3Descriptor(
-			facade.static.hashEmbeddedTransactions(transactions),
-			transactions,
-			undefined),
-		ownerKeyPair.publicKey,
-		feeMultiplier,
-		2 * 60 * 60);
+	const aggregateTransaction =
+		facade.createTransactionFromTypedDescriptor(
+			new descriptors.AggregateCompleteTransactionV3Descriptor(
+				facade.static.hashEmbeddedTransactions(transactions),
+				transactions,
+				undefined),
+			ownerKeyPair.publicKey,
+			feeMultiplier,
+			2 * 60 * 60);
 	// [<step-7]
 	// Sign, announce and wait for confirmation
-	let payload = SymbolTransactionFactory.attachSignature( // [>step-8]
-		aggregate,
-		facade.signTransaction(ownerKeyPair, aggregate));
-	let hash = facade.hashTransaction(aggregate).toString();
-	await announceTransaction(payload, 'aggregate');
-	await waitForConfirmation(hash, 'aggregate');
+	const aggregatePayload = SymbolTransactionFactory.attachSignature( // [>step-8]
+		aggregateTransaction,
+		facade.signTransaction(ownerKeyPair, aggregateTransaction));
+	const aggregateHash =
+		facade.hashTransaction(aggregateTransaction).toString();
+	await announceTransaction(aggregatePayload, 'aggregate');
+	await waitForConfirmation(aggregateHash, 'aggregate');
 	// [<step-8]
 	// Try to transfer the mosaic to the target address
-	const transfer = facade.createTransactionFromTypedDescriptor( // [>step-9]
+	const testTransaction = facade.createTransactionFromTypedDescriptor(  // [>step-9]
 		new descriptors.TransferTransactionV1Descriptor(
 			new SymbolFacade.Address(targetAddress),
 			[
@@ -217,13 +222,13 @@ try {
 		feeMultiplier,
 		2 * 60 * 60);
 
-	payload = SymbolTransactionFactory.attachSignature(
-		transfer,
-		facade.signTransaction(ownerKeyPair, transfer));
-	hash = facade.hashTransaction(transfer).toString();
+	const testPayload = SymbolTransactionFactory.attachSignature(
+		testTransaction,
+		facade.signTransaction(ownerKeyPair, testTransaction));
+	const testHash = facade.hashTransaction(testTransaction).toString();
 	console.log('\nAttempting transfer to the target account');
-	await announceTransaction(payload, 'test transfer');
-	await waitForConfirmation(hash, 'test transfer');
+	await announceTransaction(testPayload, 'test transfer');
+	await waitForConfirmation(testHash, 'test transfer');
 	// [<step-9]
 } catch (e) {
 	console.error(e.message);

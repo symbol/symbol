@@ -41,7 +41,7 @@ Built secret lock transaction:
 Secret lock transaction hash: 556BD67C7FB3ECE23AAD2C911224350DFB082748BBBD8D683DCE4AF7D2E4BE3A
 Announcing secret lock to /transactions
   Response: {"message":"packet 9 was pushed to the network via /transactions"}
-Waiting for Secret lock to reach confirmed status...
+Waiting for Secret lock confirmation...
   Transaction status: unconfirmed
   Transaction status: unconfirmed
   Transaction status: unconfirmed
@@ -68,8 +68,8 @@ Built secret proof transaction:
 Secret proof transaction hash: 1F875BF8074ADB3D40541CD44ABB2088D5588E6CE2F40CE38C4444258440CA9A
 Announcing secret proof to /transactions
   Response: {"message":"packet 9 was pushed to the network via /transactions"}
-Waiting for Secret proof to reach confirmed status...
-  Transaction status: not yet available
+Waiting for Secret proof confirmation...
+  Transaction status: unknown
   Transaction status: unconfirmed
   Transaction status: unconfirmed
   Transaction status: unconfirmed

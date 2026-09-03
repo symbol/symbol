@@ -31,6 +31,59 @@ public final class ModifyMosaicDefinition {
 
 	private final SymbolFacade facade = new SymbolFacade("testnet");
 
+	private void announceTransaction(
+		final String payload,
+		final String label
+	) throws IOException, InterruptedException {
+		System.out.printf("Announcing %s to /transactions%n", label);
+		final HttpRequest request = HttpRequest.newBuilder(
+			URI.create(nodeUrl + "/transactions"))
+			.header("Content-Type", "application/json")
+			.PUT(HttpRequest.BodyPublishers.ofString(payload))
+			.build();
+		final HttpResponse<String> response = HTTP_CLIENT.send(
+			request, BodyHandlers.ofString());
+		System.out.printf("  Response: %s%n", response.body());
+	}
+
+	private void waitForConfirmation(
+		final String transactionHash,
+		final String label
+	) throws IOException, InterruptedException {
+		System.out.printf("Waiting for %s confirmation...%n", label);
+		for (int attempt = 0; 60 > attempt; ++attempt) {
+			Thread.sleep(1000);
+			final String statusPath =
+				"/transactionStatus/" + transactionHash;
+			final HttpRequest statusRequest = HttpRequest.newBuilder(
+				URI.create(nodeUrl + statusPath)).GET().build();
+			final HttpResponse<String> statusResponse = HTTP_CLIENT
+				.send(statusRequest, BodyHandlers.ofString());
+			if (404 == statusResponse.statusCode()) {
+				System.out.println("  Transaction status: unknown");
+				continue;
+			}
+			if (2 != statusResponse.statusCode() / 100)
+				throw new IOException(
+					"HTTP " + statusResponse.statusCode());
+
+			final JsonNode status =
+				JSON_MAPPER.readTree(statusResponse.body());
+			final String group = status.get("group").asText();
+			System.out.printf("  Transaction status: %s%n", group);
+			if ("confirmed".equals(group)) {
+				System.out.printf("%s confirmed in %d seconds%n",
+					label, attempt);
+				return;
+			}
+			if ("failed".equals(group))
+				throw new IOException(String.format("%s failed: %s",
+					label, status.get("code").asText()));
+		}
+		throw new IOException(String.format(
+			"%s not confirmed after 60 seconds", label));
+	}
+
 	public static void main(final String[] args) {
 		try {
 			new ModifyMosaicDefinition().run();
@@ -100,55 +153,15 @@ public final class ModifyMosaicDefinition {
 		System.out.println(JSON_MAPPER.writerWithDefaultPrettyPrinter()
 			.writeValueAsString(modifyTx.toJson()));
 
-		// Announce transaction
 		final String modifyHash =
 			facade.hashTransaction(modifyTx).toString();
 		System.out.printf("Transaction hash: %s%n", modifyHash);
 
-		System.out.println(
-			"Announcing mosaic modification to /transactions");
-		final HttpRequest request = HttpRequest.newBuilder(
-			URI.create(nodeUrl + "/transactions"))
-			.header("Content-Type", "application/json")
-			.PUT(HttpRequest.BodyPublishers.ofString(jsonPayload))
-			.build();
-		final HttpResponse<String> response = HTTP_CLIENT.send(
-			request, BodyHandlers.ofString());
-		System.out.printf("  Response: %s%n", response.body());
+		// Announce transaction
+		announceTransaction(jsonPayload, "mosaic modification");
 		// [<step-4]
 		// Wait for confirmation [>step-5]
-		System.out.println(
-			"Waiting for mosaic modification confirmation...");
-		for (int attempt = 0; 60 > attempt; ++attempt) {
-			Thread.sleep(1000);
-			try {
-				final String statusPath =
-					"/transactionStatus/" + modifyHash;
-				final HttpRequest statusRequest = HttpRequest.newBuilder(
-					URI.create(nodeUrl + statusPath)).GET().build();
-				final HttpResponse<String> statusResponse = HTTP_CLIENT
-					.send(statusRequest, BodyHandlers.ofString());
-				final JsonNode status =
-					JSON_MAPPER.readTree(statusResponse.body());
-				final String group = status.get("group").asText();
-				System.out.printf("  Transaction status: %s%n", group);
-				if ("confirmed".equals(group)) {
-					System.out.printf(
-						"Mosaic modification confirmed in %d seconds%n",
-						attempt);
-					break;
-				}
-				if ("failed".equals(group))
-					throw new IOException(String.format(
-						"Mosaic modification failed: %s",
-						status.get("code").asText()));
-			} catch (final IOException ex) {
-				if (ex.getMessage().contains("failed"))
-					throw ex;
-
-				System.out.println("  Transaction status: unknown");
-			}
-		}
+		waitForConfirmation(modifyHash, "mosaic modification");
 		// [<step-5]
 		// Retrieve the mosaic [>step-6]
 		final String mosaicIdHex = "%016X".formatted(mosaicId);

@@ -117,7 +117,7 @@ public final class Messages {
 			medianMultiplier, minimumMultiplier);
 		System.out.printf("  Fee multiplier: %d%n%n", feeMultiplier);
 
-		// ===== PLAIN TEXT MESSAGE =====
+		// --- PLAIN TEXT MESSAGE ---
 		System.out.println("==> Sending Plain Text Message"); // [>step-2]
 
 		// Create a plain text message
@@ -135,8 +135,7 @@ public final class Messages {
 					plainMessage),
 				senderKeyPair.getPublicKey(),
 				feeMultiplier,
-				2 * 60 * 60);
-		// [<step-2]
+				2 * 60 * 60); // [<step-2]
 
 		// Sign and announce the transaction
 		final CryptoTypes.Signature plainSignature =
@@ -150,7 +149,7 @@ public final class Messages {
 		put("/transactions", plainJsonPayload);
 		System.out.println("Plain message transaction announced\n");
 
-		// ===== RECEIVING PLAIN TEXT MESSAGE =====
+		// --- RECEIVING PLAIN TEXT MESSAGE ---
 		// [>step-3]
 		System.out.println("<== Receiving Plain Text Message");
 
@@ -164,7 +163,7 @@ public final class Messages {
 		System.out.printf("Received plain message: %s%n%n",
 			new String(receivedPlainMessage, StandardCharsets.UTF_8));
 		// [<step-3]
-		// ===== ENCRYPTED MESSAGE =====
+		// --- ENCRYPTED MESSAGE ---
 		System.out.println("==> Sending Encrypted Message"); // [>step-4]
 
 		// Create a message encoder with sender's key pair
@@ -191,8 +190,7 @@ public final class Messages {
 					encryptedPayload),
 				senderKeyPair.getPublicKey(),
 				feeMultiplier,
-				2 * 60 * 60);
-		// [<step-4]
+				2 * 60 * 60); // [<step-4]
 
 		// Sign and announce the transaction
 		final CryptoTypes.Signature encryptedSignature =
@@ -207,7 +205,7 @@ public final class Messages {
 		put("/transactions", encryptedJsonPayload);
 		System.out.println("Encrypted message transaction announced\n");
 
-		// ===== RECEIVING ENCRYPTED MESSAGE =====
+		// --- RECEIVING ENCRYPTED MESSAGE ---
 		System.out.println("<== Receiving Encrypted Message"); // [>step-5]
 
 		// Wait for confirmation

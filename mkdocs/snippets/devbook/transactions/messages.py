@@ -75,7 +75,7 @@ with urllib.request.urlopen(f"{NODE_URL}{fee_path}") as response:
 	fee_multiplier = max(median_multiplier, minimum_multiplier)
 	print(f"  Fee multiplier: {fee_multiplier}\n")
 
-# ===== PLAIN TEXT MESSAGE =====
+# --- PLAIN TEXT MESSAGE ---
 print("==> Sending Plain Text Message")  # [>step-2]
 
 # Create a plain text message
@@ -115,7 +115,7 @@ plain_announce_request = urllib.request.Request(
 with urllib.request.urlopen(plain_announce_request) as response:
 	print("Plain message transaction announced\n")
 
-# ===== RECEIVING PLAIN TEXT MESSAGE =====
+# --- RECEIVING PLAIN TEXT MESSAGE ---
 print("<== Receiving Plain Text Message")  # [>step-3]
 
 # Wait for confirmation
@@ -131,7 +131,7 @@ print(
 	f'Received plain message: {received_plain_message.decode("utf-8")}\n'
 )
 # [<step-3]
-# ===== ENCRYPTED MESSAGE =====
+# --- ENCRYPTED MESSAGE ---
 print("==> Sending Encrypted Message")  # [>step-4]
 
 # Create a message encoder with sender's key pair
@@ -178,7 +178,7 @@ encrypted_announce_request = urllib.request.Request(
 with urllib.request.urlopen(encrypted_announce_request) as response:
 	print("Encrypted message transaction announced\n")
 
-# ===== RECEIVING ENCRYPTED MESSAGE =====
+# --- RECEIVING ENCRYPTED MESSAGE ---
 print("<== Receiving Encrypted Message")  # [>step-5]
 
 # Wait for confirmation

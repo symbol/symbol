@@ -198,7 +198,7 @@ digraph "Multisignature Tree" {
 
 === ":material-plus-thick: マルチシグの有効化"
 
-    ```text linenums="1" hl_lines="2-4 8 25-27"
+    ```text linenums="1" hl_lines="2-4 8 25-29"
     --8<-- 'devbook/accounts/configure_multisig_enable.log'
     ```
 

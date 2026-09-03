@@ -65,7 +65,7 @@ const minimumMultiplier = feeJSON.minFeeMultiplier;
 const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
 console.log('  Fee multiplier:', feeMultiplier, '\n');
 
-// ===== PLAIN TEXT MESSAGE =====
+// --- PLAIN TEXT MESSAGE ---
 console.log('==> Sending Plain Text Message'); // [>step-2]
 
 // Create a plain text message
@@ -100,7 +100,7 @@ await fetch(`${NODE_URL}/transactions`, {
 });
 console.log('Plain message transaction announced\n');
 
-// ===== RECEIVING PLAIN TEXT MESSAGE =====
+// --- RECEIVING PLAIN TEXT MESSAGE ---
 console.log('<== Receiving Plain Text Message'); // [>step-3]
 
 // Wait for confirmation
@@ -113,7 +113,7 @@ const receivedPlainMessage = Buffer.from(
 console.log('Received plain message:',
 	new TextDecoder().decode(receivedPlainMessage), '\n');
 // [<step-3]
-// ===== ENCRYPTED MESSAGE =====
+// --- ENCRYPTED MESSAGE ---
 console.log('==> Sending Encrypted Message'); // [>step-4]
 
 // Create a message encoder with sender's key pair
@@ -157,7 +157,7 @@ await fetch(`${NODE_URL}/transactions`, {
 });
 console.log('Encrypted message transaction announced\n');
 
-// ===== RECEIVING ENCRYPTED MESSAGE =====
+// --- RECEIVING ENCRYPTED MESSAGE ---
 console.log('<== Receiving Encrypted Message'); // [>step-5]
 
 // Wait for confirmation

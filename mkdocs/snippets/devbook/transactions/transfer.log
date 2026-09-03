@@ -14,13 +14,14 @@ Built transaction:
   mosaics: [ { mosaicId: '16666583871264174062', amount: '1000000' } ],
   message: ''
 }
+Transaction hash: 260CD293E05C2853A967874BCF67FAB36FD331CE14925CA611B3877B99BB325D
 Announcing transaction to /transactions
   Response: {"message":"packet 9 was pushed to the network via /transactions"}
-Waiting for confirmation from /transactionStatus/260CD293E05C2853A967874BCF67FAB36FD331CE14925CA611B3877B99BB325D
-  Transaction status: unknown | Cause: Not Found
+Waiting for transaction confirmation...
+  Transaction status: unknown
   Transaction status: unconfirmed
   Transaction status: unconfirmed
   Transaction status: unconfirmed
   Transaction status: unconfirmed
   Transaction status: confirmed
-Transaction confirmed in 5 seconds
+transaction confirmed in 5 seconds

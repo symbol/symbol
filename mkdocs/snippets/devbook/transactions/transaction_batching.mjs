@@ -10,6 +10,44 @@ import {
 const NODE_URL = process.env.NODE_URL ||
 	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
+
+// Helper function to announce a transaction
+async function announceTransaction(payload, label) {
+	console.log(`Announcing ${label} to /transactions`);
+	const response = await fetch(`${NODE_URL}/transactions`, {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		body: payload
+	});
+	console.log('  Response:', await response.text());
+}
+
+// Helper function to wait for transaction confirmation
+async function waitForConfirmation(transactionHash, label) {
+	console.log(`Waiting for ${label} confirmation...`);
+	for (let attempt = 0; 60 > attempt; attempt++) {
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
+		const response = await fetch(
+			`${NODE_URL}/transactionStatus/${transactionHash}`);
+		if (!response.ok) {
+			if (404 === response.status) {
+				console.log('  Transaction status: unknown');
+				continue;
+			}
+			throw new Error(`HTTP ${response.status}`);
+		}
+		const status = await response.json();
+		console.log('  Transaction status:', status.group);
+		if ('confirmed' === status.group) {
+			console.log(`${label} confirmed in`, attempt, 'seconds');
+			return;
+		}
+		if ('failed' === status.group)
+			throw new Error(`${label} failed: ${status.code}`);
+	}
+	throw new Error(`${label} not confirmed after 60 seconds`);
+}
+
 // [>step-1]
 const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY ||
 	'0000000000000000000000000000000000000000000000000000000000000000';
@@ -46,28 +84,30 @@ try {
 	// [<step-2]
 	// Embedded tx 1: Send 5 XYM to Recipient 1 [>step-3]
 	const xymMosaicId = generateMosaicAliasId('symbol.xym');
-	const embeddedTx1 = facade.createEmbeddedTransactionFromTypedDescriptor(
-		new descriptors.TransferTransactionV1Descriptor(
-			new Address(RECIPIENT_1),
-			[
-				new descriptors.UnresolvedMosaicDescriptor(
-					xymMosaicId,
-					new models.Amount(5_000_000n)) // 5 XYM
-			],
-			undefined),
-		signerKeyPair.publicKey);
+	const embeddedTx1 =
+		facade.createEmbeddedTransactionFromTypedDescriptor(
+			new descriptors.TransferTransactionV1Descriptor(
+				new Address(RECIPIENT_1),
+				[
+					new descriptors.UnresolvedMosaicDescriptor(
+						xymMosaicId,
+						new models.Amount(5_000_000n)) // 5 XYM
+				],
+				undefined),
+			signerKeyPair.publicKey);
 
 	// Embedded tx 2: Send 3 XYM to Recipient 2
-	const embeddedTx2 = facade.createEmbeddedTransactionFromTypedDescriptor(
-		new descriptors.TransferTransactionV1Descriptor(
-			new Address(RECIPIENT_2),
-			[
-				new descriptors.UnresolvedMosaicDescriptor(
-					xymMosaicId,
-					new models.Amount(3_000_000n)) // 3 XYM
-			],
-			undefined),
-		signerKeyPair.publicKey);
+	const embeddedTx2 =
+		facade.createEmbeddedTransactionFromTypedDescriptor(
+			new descriptors.TransferTransactionV1Descriptor(
+				new Address(RECIPIENT_2),
+				[
+					new descriptors.UnresolvedMosaicDescriptor(
+						xymMosaicId,
+						new models.Amount(3_000_000n)) // 3 XYM
+				],
+				undefined),
+			signerKeyPair.publicKey);
 	// [<step-3]
 	// Build the aggregate transaction [>step-4]
 	const embeddedTransactions = [embeddedTx1, embeddedTx2];
@@ -89,43 +129,14 @@ try {
 		.attachSignature(transaction, signature);
 
 	// Announce the transaction
-	const announcePath = '/transactions';
-	console.log('Announcing transaction to', announcePath);
-	const announceResponse = await fetch(
-		`${NODE_URL}${announcePath}`, {
-			method: 'PUT',
-			headers: { 'Content-Type': 'application/json' },
-			body: jsonPayload
-		});
-	console.log('  Response:', await announceResponse.text());
+	await announceTransaction(jsonPayload, 'transaction');
 	// [<step-5]
 	// Wait for confirmation [>step-6]
 	const transactionHash =
 		facade.hashTransaction(transaction).toString();
-	const statusPath = `/transactionStatus/${transactionHash}`;
-	console.log('Waiting for confirmation from', statusPath);
-
-	for (let attempt = 0; 60 > attempt; attempt++) {
-		await new Promise(resolve => { setTimeout(resolve, 1000); });
-		try {
-			const statusResponse = await fetch(
-				`${NODE_URL}${statusPath}`);
-			const status = await statusResponse.json();
-			console.log('  Transaction status:', status.group);
-			if ('confirmed' === status.group) {
-				console.log('Transaction confirmed in', attempt,
-					'seconds');
-				break;
-			}
-			if ('failed' === status.group) {
-				console.log('Transaction failed:', status.code);
-				break;
-			}
-		} catch (e) {
-			console.log('  Transaction status: unknown | Cause:',
-				e.message);
-		}
-	} // [<step-6]
+	console.log('Transaction hash:', transactionHash);
+	await waitForConfirmation(transactionHash, 'transaction');
+	// [<step-6]
 } catch (e) {
 	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');
 }

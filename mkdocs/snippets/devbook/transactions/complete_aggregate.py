@@ -10,8 +10,42 @@ from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
-# [>step-1]
-# Account A (initiates the aggregate tx and sends XYM to Account B)
+
+# Helper function to announce a transaction
+def announce_transaction(payload, label):
+	print(f'Announcing {label} to /transactions')
+	request = urllib.request.Request(
+		f'{NODE_URL}/transactions',
+		data=payload.encode(),
+		headers={'Content-Type': 'application/json'},
+		method='PUT'
+	)
+	with urllib.request.urlopen(request) as announce_response:
+		print(f'  Response: {announce_response.read().decode()}')
+
+
+# Helper function to wait for transaction confirmation
+def wait_for_confirmation(tx_hash, label):
+	print(f'Waiting for {label} confirmation...')
+	for attempt in range(60):
+		time.sleep(1)
+		try:
+			url = f'{NODE_URL}/transactionStatus/{tx_hash}'
+			with urllib.request.urlopen(url) as confirm_response:
+				status = json.loads(confirm_response.read().decode())
+				print(f'  Transaction status: {status["group"]}')
+				if status['group'] == 'confirmed':
+					print(f'{label} confirmed in {attempt} seconds')
+					return
+				if status['group'] == 'failed':
+					raise RuntimeError(
+						f'{label} failed: {status["code"]}')
+		except urllib.error.HTTPError:
+			print('  Transaction status: unknown')
+	raise TimeoutError(f'{label} not confirmed after 60 seconds')
+
+
+# Account A (initiates the aggregate tx and sends XYM to Account B) [>step-1]
 ACCOUNT_A_PRIVATE_KEY = os.getenv(
 	'ACCOUNT_A_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
@@ -31,8 +65,8 @@ account_a_address = facade.network.public_key_to_address(
 account_b_address = facade.network.public_key_to_address(
 	account_b_key_pair.public_key)
 print(f'Account A: {account_a_address}')
-print(f'Account B: {account_b_address}')
-# [<step-1]
+print(f'Account B: {account_b_address}')  # [<step-1]
+
 try:
 	# Fetch recommended fees [>step-2]
 	fee_path = '/network/fees/transaction'
@@ -42,8 +76,8 @@ try:
 		median_multiplier = response_json['medianFeeMultiplier']
 		minimum_multiplier = response_json['minFeeMultiplier']
 		fee_multiplier = max(median_multiplier, minimum_multiplier)
-		print(f'  Fee multiplier: {fee_multiplier}')
-	# [<step-2]
+		print(f'  Fee multiplier: {fee_multiplier}')  # [<step-2]
+
 	# Embedded tx 1: Account A transfers 10 XYM to Account B [>step-3]
 	embedded_transaction_1 = (
 		facade.create_embedded_transaction_from_descriptor(
@@ -52,7 +86,7 @@ try:
 				'recipient_address': account_b_address,
 				'mosaics': [{
 					'mosaic_id': generate_mosaic_alias_id('symbol.xym'),
-					'amount': 10_000_000  # 10 XYM (divisibility = 6)
+					'amount': 10_000_000  # 10 XYM
 				}]
 			},
 			account_a_key_pair.public_key))
@@ -66,11 +100,11 @@ try:
 				'recipient_address': account_a_address,
 				'mosaics': [{
 					'mosaic_id': custom_mosaic_id,
-					'amount': 1  # 1 custom mosaic (divisibility = 0)
+					'amount': 1  # 1 custom mosaic
 				}]
 			},
-			account_b_key_pair.public_key))
-	# [<step-3]
+			account_b_key_pair.public_key))  # [<step-3]
+
 	# Build the aggregate transaction [>step-4]
 	embedded_transactions = [
 		embedded_transaction_1, embedded_transaction_2]
@@ -86,8 +120,8 @@ try:
 		2 * 60 * 60,
 		1)
 	print('Built aggregate transaction without signatures:')
-	print(json.dumps(transaction.to_json(), indent=2))
-	# [<step-4]
+	print(json.dumps(transaction.to_json(), indent=2))  # [<step-4]
+
 	# --- ACCOUNT A (Initiator) --- [>step-5]
 	print('[Account A] Signing the aggregate...')
 	signature_a = facade.sign_transaction(
@@ -124,44 +158,15 @@ try:
 	transaction.cosignatures.append(shared_cosignature)
 	transaction_payload = facade.transaction_factory.to_json(transaction)
 	json_payload = transaction_payload
-	print('[Account A] Ready to announce')
-	# [<step-7]
-	# Announce the transaction [>step-8]
-	announce_path = '/transactions'
-	print(f'Announcing transaction to {announce_path}')
-	announce_request = urllib.request.Request(
-		f'{NODE_URL}{announce_path}',
-		data=json_payload.encode(),
-		headers={'Content-Type': 'application/json'},
-		method='PUT'
-	)
-	with urllib.request.urlopen(announce_request) as response:
-		print(f'  Response: {response.read().decode()}')
+	print('[Account A] Ready to announce')  # [<step-7]
 
-	# Compute hash of final transaction (with cosignatures)
+	# Announce the transaction [>step-8]
 	transaction_hash = facade.hash_transaction(transaction)
-	# [<step-8]
+	print(f'Transaction hash: {transaction_hash}')
+	announce_transaction(json_payload, 'transaction')  # [<step-8]
+
 	# Wait for confirmation [>step-9]
-	status_path = f'/transactionStatus/{transaction_hash}'
-	print(f'Waiting for confirmation from {status_path}')
-	for attempt in range(60):
-		time.sleep(1)
-		try:
-			with urllib.request.urlopen(
-				f'{NODE_URL}{status_path}'
-			) as response:
-				status = json.loads(response.read().decode())
-				print(f'  Transaction status: {status['group']}')
-				if status['group'] == 'confirmed':
-					print(f'Transaction confirmed in {attempt} seconds')
-					break
-				if status['group'] == 'failed':
-					print(f'Transaction failed: {status['code']}')
-					break
-		except urllib.error.HTTPError as e:
-			print(f'  Transaction status: unknown | Cause: ({e.msg})')
-	else:
-		print('Confirmation took too long.')
+	wait_for_confirmation(transaction_hash, 'transaction')
 	# [<step-9]
 except Exception as e:
 	print(e)

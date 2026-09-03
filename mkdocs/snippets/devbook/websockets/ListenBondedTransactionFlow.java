@@ -85,8 +85,7 @@ public final class ListenBondedTransactionFlow {
 		final Address accountBAddress = facade.network.publicKeyToAddress(
 			accountBKeyPair.getPublicKey());
 		System.out.printf("Account A: %s%n", accountAAddress);
-		System.out.printf("Account B: %s%n", accountBAddress);
-		// [<step-1]
+		System.out.printf("Account B: %s%n", accountBAddress); // [<step-1]
 
 		// Fetch recommended fees
 		final JsonNode feeJSON = getJson("/network/fees/transaction");
@@ -181,8 +180,9 @@ public final class ListenBondedTransactionFlow {
 				.toString());
 
 		// Announce hash lock
-		announce("/transactions", hashLockPayload);
-		System.out.println("[Account A] Announced hash lock "
+		announceTransaction(
+			hashLockPayload, "/transactions",
+			"[Account A] Announced hash lock "
 			+ hashLockHash.substring(0, 16) + "...");
 
 		// Wait for hash lock confirmation
@@ -223,10 +223,10 @@ public final class ListenBondedTransactionFlow {
 		}
 		// [<step-3]
 		// [Account A] Announce bonded aggregate [>step-4]
-		announce("/transactions/partial", bondedPayload);
-		System.out.println("[Account A] Announced bonded "
-			+ bondedHash.substring(0, 16) + "...");
-		// [<step-4]
+		announceTransaction(
+			bondedPayload, "/transactions/partial",
+			"[Account A] Announced bonded "
+			+ bondedHash.substring(0, 16) + "..."); // [<step-4]
 
 		// Wait for confirmation via WebSocket
 		confirmed.join();
@@ -248,14 +248,19 @@ public final class ListenBondedTransactionFlow {
 		return JSON_MAPPER.readTree(response.body());
 	}
 
-	private void announce(final String path, final String payload)
+	private void announceTransaction(
+		final String payload,
+		final String endpoint,
+		final String label
+	)
 		throws IOException, InterruptedException {
 		final HttpRequest request = HttpRequest.newBuilder(
-			URI.create(nodeUrl + path))
+			URI.create(nodeUrl + endpoint))
 			.header("Content-Type", "application/json")
 			.PUT(HttpRequest.BodyPublishers.ofString(payload))
 			.build();
 		HTTP_CLIENT.send(request, BodyHandlers.ofString());
+		System.out.println(label);
 	}
 
 	// [Account B] Listen for bonded transaction flow [>step-5]
@@ -318,8 +323,9 @@ public final class ListenBondedTransactionFlow {
 					new CryptoTypes.Hash256(bondedHash));
 			final String cosignaturePayload = JSON_MAPPER
 				.writeValueAsString(cosignature.toJson());
-			announce("/transactions/cosignature", cosignaturePayload);
-			System.out.println("[Account B] Submitted cosignature");
+			announceTransaction(
+				cosignaturePayload, "/transactions/cosignature",
+				"[Account B] Submitted cosignature");
 		}
 	}
 
