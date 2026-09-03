@@ -83,7 +83,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/bonded_aggregate', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/bonded_aggregate') }}
 
 A bonded aggregate transaction involves two distinct roles: an **initiator** (Account A) that builds, signs, and
 announces the aggregate, and one or more **cosigners** (Account B, and any additional cosigners) that poll for pending

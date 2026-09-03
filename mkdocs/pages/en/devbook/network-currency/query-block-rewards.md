@@ -23,7 +23,7 @@ This tutorial only reads data from the network. No <account:> or <XYM:> balance 
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/network-currency/query_block_rewards', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/network-currency/query_block_rewards') }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API node.
 If no value is provided, a default <testnet:> node is used.

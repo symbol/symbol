@@ -18,7 +18,7 @@ HTTP リクエストを行う方法さえあれば実行可能です。
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/chain/network_time', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/chain/network_time') }}
 
 ## コード解説 {: #code-explanation }
 

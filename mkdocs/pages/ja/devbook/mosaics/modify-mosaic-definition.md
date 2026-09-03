@@ -38,7 +38,7 @@ tutorial_level: intermediate
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/modify_mosaic_definition', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/modify_mosaic_definition') }}
 
 ## コード解説 {: #code-explanation }
 

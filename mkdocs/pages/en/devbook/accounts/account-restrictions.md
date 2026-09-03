@@ -52,7 +52,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/accounts/account_restrictions', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/account_restrictions') }}
 
 ## Code Explanation
 

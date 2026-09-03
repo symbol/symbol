@@ -46,7 +46,7 @@ tutorial_level: beginner
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/websockets/listen_transaction_error', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen_transaction_error') }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用して Symbol API [ノード](default: ノード) を設定します。
 値が指定されない場合は、デフォルト値が使用されます。
