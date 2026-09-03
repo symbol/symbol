@@ -16,6 +16,10 @@ services:
       start_period: 5s
     volumes:
       - ./mongo/{{BUILD_NUMBER}}:/mongo:rw
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
 
   test:
     image: {{IMAGE_NAME}}
@@ -32,6 +36,9 @@ services:
       - SYS_PTRACE
     ulimits:
       core: -1
+      nofile:
+        soft: 65536
+        hard: 65536
     command: >-
       python3 /scripts/runDockerTestsInnerTest.py
         --compiler-configuration /{{COMPILER_CONFIGURATION}}
