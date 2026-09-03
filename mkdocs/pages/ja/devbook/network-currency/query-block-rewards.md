@@ -20,7 +20,7 @@ Symbol上の各[ブロック](default:ブロック)は、[インフレーショ�
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/network-currency/query_block_rewards', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/network-currency/query_block_rewards') }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用して Symbol API ノードを設定します。
 値が指定されない場合は、デフォルトの[テストネット](default:テストネット)ノードが使用されます。

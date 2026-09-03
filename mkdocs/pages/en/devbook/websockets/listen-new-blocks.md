@@ -42,7 +42,7 @@ See the [WebSocket reference](../reference/websockets/index.md) for details on t
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/websockets/listen_new_blocks', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen_new_blocks') }}
 
 The snippet uses the `NODE_URL` environment variable to set the Symbol API <node:>.
 If no value is provided, a default one is used.

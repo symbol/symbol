@@ -42,11 +42,15 @@
 {% set ns.step_count = ns.step_count + 1 %}
 {%- endmacro %}
 
-{% macro code_full_tagged(filename, langs, show=true) -%}
+{% macro code_full_tagged(filename, langs=none, show=true) -%}
 {%- set ns.filename = filename -%}
 
+{%- if langs is none -%}
+    {%- set langs = lang_name -%}
+{%- endif -%}
+
 {# Convert list to dictionary with empty values #}
-{%- if langs is sequence -%}
+{%- if langs is sequence and langs is not mapping -%}
     {%- set parsed = {} -%}
     {%- for l in langs -%}
         {%- set _ = parsed.update({ l: {} }) -%}

@@ -27,7 +27,7 @@ tutorial_level: intermediate
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/namespaces/register_root_namespace', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/namespaces/register_root_namespace') }}
 
 ## コード解説 {: #code-explanation }
 

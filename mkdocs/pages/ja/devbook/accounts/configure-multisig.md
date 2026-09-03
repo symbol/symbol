@@ -48,7 +48,7 @@ digraph "Multisignature Tree" {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/accounts/configure_multisig', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/configure_multisig') }}
 
 ## コード解説 {: #code-explanation }
 

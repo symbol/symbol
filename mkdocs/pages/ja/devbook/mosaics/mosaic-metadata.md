@@ -43,7 +43,7 @@ digraph {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/mosaic_metadata', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/mosaic_metadata') }}
 
 ## コード解説 {: #code-explanation }
 

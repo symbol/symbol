@@ -52,7 +52,7 @@ tutorial_level: advanced
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/mosaic_restrictions', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/mosaic_restrictions') }}
 
 ## コード解説 {: #code-explanation }
 

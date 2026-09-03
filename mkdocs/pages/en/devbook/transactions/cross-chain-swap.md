@@ -87,7 +87,7 @@ Before you start, make sure to:
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/cross_chain_swap', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/cross_chain_swap') }}
 
 ## Ethereum HTLC Contract
 

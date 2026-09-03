@@ -59,7 +59,7 @@ To use your own accounts, complete the following steps:
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/websockets/listen_bonded_transaction_flow', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/websockets/listen_bonded_transaction_flow') }}
 
 A bonded aggregate transaction involves two distinct roles: an **initiator** (Account A) that builds, signs, and
 announces the aggregate, and one or more **cosigners** (Account B and any additional cosigners) that monitor

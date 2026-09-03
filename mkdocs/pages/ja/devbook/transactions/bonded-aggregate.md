@@ -71,7 +71,7 @@ digraph {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/bonded_aggregate', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/bonded_aggregate') }}
 
 ボンデッドアグリゲートトランザクションには、2つの異なる役割が含まれます。アグリゲートを構築・署名・アナウンスする **開始者**（アカウント A）と、保留中のトランザクションをポーリングし、内容を確認した後に署名を追加する1人以上の **連署者**（アカウント B）です。
 

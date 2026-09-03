@@ -20,7 +20,7 @@ HTTPリクエストを行う方法さえあれば実行可能です。
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/network-currency/query_currency_supply', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/network-currency/query_currency_supply') }}
 
 このスニペットでは、 `NODE_URL` 環境変数を使用してSymbol API[ノード](default: ノード)を設定します。
 値が指定されない場合は、デフォルトの[テストネット](default: テストネット)ノードが使用されます。

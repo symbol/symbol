@@ -30,7 +30,7 @@ tutorial_level: beginner
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/mosaics/revoke_mosaic', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/mosaics/revoke_mosaic') }}
 
 ## コード解説 {: #code-explanation }
 

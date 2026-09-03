@@ -37,7 +37,7 @@ Before you start, make sure to:
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/transfer', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/transfer') }}
 
 The whole code is wrapped in a single `try` block to provide simple error handling,
 but applications will probably want to use more fine-grained control.

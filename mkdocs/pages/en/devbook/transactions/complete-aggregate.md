@@ -82,7 +82,7 @@ transactions are announced and confirmed.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/complete_aggregate', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/complete_aggregate') }}
 
 The whole code is wrapped in a single `try` block to provide simple error handling,
 but applications will probably want to use more fine-grained control.

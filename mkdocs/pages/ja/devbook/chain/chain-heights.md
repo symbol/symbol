@@ -17,7 +17,7 @@ tutorial_level: beginner
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/chain/chain_heights', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/chain/chain_heights') }}
 
 このスニペットでは、`NODE_URL` 環境変数を使用して Symbol API [ノード](default:ノード) を設定します。値が指定されない場合は、デフォルト値が使用されます。
 

@@ -62,7 +62,7 @@ digraph {
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/transactions/transaction_batching', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/transactions/transaction_batching') }}
 
 ## コード解説 {: #code-explanation }
 

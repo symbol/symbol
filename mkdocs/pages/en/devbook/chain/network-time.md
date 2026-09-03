@@ -20,7 +20,7 @@ You only need a way to make HTTP requests.
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/chain/network_time', ['py', 'js', 'java']) }}
+{{ tutorial.code_full_tagged('devbook/chain/network_time') }}
 
 ## Code Explanation
 
