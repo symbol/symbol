@@ -10,7 +10,45 @@ const NODE_URL = process.env.NODE_URL ||
 	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
 
-// Account A (initiates the aggregate tx and sends XYM to Account B) [>step-1]
+// Helper function to announce a transaction
+async function announceTransaction(payload, label) {
+	console.log(`Announcing ${label} to /transactions`);
+	const response = await fetch(`${NODE_URL}/transactions`, {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		body: payload
+	});
+	console.log('  Response:', await response.text());
+}
+
+// Helper function to wait for transaction confirmation
+async function waitForConfirmation(transactionHash, label) {
+	console.log(`Waiting for ${label} confirmation...`);
+	for (let attempt = 0; 60 > attempt; attempt++) {
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
+		const response = await fetch(
+			`${NODE_URL}/transactionStatus/${transactionHash}`);
+		if (!response.ok) {
+			if (404 === response.status) {
+				console.log('  Transaction status: unknown');
+				continue;
+			}
+			throw new Error(`HTTP ${response.status}`);
+		}
+		const status = await response.json();
+		console.log('  Transaction status:', status.group);
+		if ('confirmed' === status.group) {
+			console.log(`${label} confirmed in`, attempt, 'seconds');
+			return;
+		}
+		if ('failed' === status.group)
+			throw new Error(`${label} failed: ${status.code}`);
+	}
+	throw new Error(`${label} not confirmed after 60 seconds`);
+}
+
+// [>step-1]
+// Account A (initiates the aggregate tx and sends XYM to Account B)
 const ACCOUNT_A_PRIVATE_KEY = process.env.ACCOUNT_A_PRIVATE_KEY || (
 	'0000000000000000000000000000000000000000000000000000000000000000');
 const accountAKeyPair = new SymbolFacade.KeyPair(
@@ -28,8 +66,8 @@ const accountAAddress = facade.network.publicKeyToAddress(
 const accountBAddress = facade.network.publicKeyToAddress(
 	accountBKeyPair.publicKey);
 console.log('Account A:', accountAAddress.toString());
-console.log('Account B:', accountBAddress.toString());
-// [<step-1]
+console.log('Account B:', accountBAddress.toString()); // [<step-1]
+
 try {
 	// Fetch recommended fees [>step-2]
 	const feePath = '/network/fees/transaction';
@@ -39,8 +77,8 @@ try {
 	const medianMultiplier = feeJSON.medianFeeMultiplier;
 	const minimumMultiplier = feeJSON.minFeeMultiplier;
 	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
-	console.log('  Fee multiplier:', feeMultiplier);
-	// [<step-2]
+	console.log('  Fee multiplier:', feeMultiplier); // [<step-2]
+
 	// Embedded tx 1: Account A transfers 10 XYM to Account B [>step-3]
 	const embeddedTransaction1 =
 		facade.createEmbeddedTransactionFromTypedDescriptor(
@@ -66,8 +104,8 @@ try {
 						new models.Amount(1n)) // 1 custom mosaic
 				],
 				undefined),
-			accountBKeyPair.publicKey);
-	// [<step-3]
+			accountBKeyPair.publicKey); // [<step-3]
+
 	// Build the aggregate transaction [>step-4]
 	const embeddedTransactions = [
 		embeddedTransaction1, embeddedTransaction2];
@@ -116,57 +154,25 @@ try {
 	// Account B sends the cosignature back to Account A
 	const sharedCosignature = cosignatureB;
 	console.log('[Account B] <== Cosignature sent back to Account A',
-		'(offchain)');
-	// [<step-6]
+		'(offchain)'); // [<step-6]
+
 	// --- ACCOUNT A (Initiator) --- [>step-7]
 	// Add cosignature to the transaction and rebuild payload
 	transaction.cosignatures.push(sharedCosignature);
 	const transactionPayloadFinal = facade.transactionFactory.static
 		.toJson(transaction);
 	const jsonPayload = transactionPayloadFinal;
-	console.log('[Account A] Ready to announce');
-	// [<step-7]
-	// Announce the transaction [>step-8]
-	const announcePath = '/transactions';
-	console.log('Announcing transaction to', announcePath);
-	const announceResponse = await fetch(`${NODE_URL}${announcePath}`, {
-		method: 'PUT',
-		headers: { 'Content-Type': 'application/json' },
-		body: jsonPayload
-	});
-	console.log('  Response:', await announceResponse.text());
+	console.log('[Account A] Ready to announce'); // [<step-7]
 
-	// Compute hash of final transaction (with cosignatures)
+	// Announce the transaction [>step-8]
 	const transactionHash =
 		facade.hashTransaction(transaction).toString();
-	// [<step-8]
-	// Wait for confirmation [>step-9]
-	const statusPath = `/transactionStatus/${transactionHash}`;
-	console.log('Waiting for confirmation from', statusPath);
-	for (let attempt = 1; 60 >= attempt; ++attempt) {
-		await new Promise(resolve => { setTimeout(resolve, 1000); });
-		const response = await fetch(`${NODE_URL}${statusPath}`);
+	console.log('Transaction hash:', transactionHash);
+	await announceTransaction(jsonPayload, 'transaction'); // [<step-8]
 
-		if (response.ok) {
-			const status = await response.json();
-			console.log('  Transaction status:', status.group);
-			if ('confirmed' === status.group) {
-				console.log('Transaction confirmed in', attempt,
-					'seconds');
-				break;
-			}
-			if ('failed' === status.group) {
-				console.log('Transaction failed:', status.code);
-				break;
-			}
-		} else {
-			console.log('  Transaction status: unknown | Cause:',
-				response.status
-			);
-		}
-		if (60 === attempt)
-			console.warn('Confirmation took too long.');
-	} // [<step-9]
+	// Wait for confirmation [>step-9]
+	await waitForConfirmation(transactionHash, 'transaction');
+	// [<step-9]
 } catch (e) {
 	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');
 }

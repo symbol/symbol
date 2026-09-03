@@ -73,8 +73,7 @@ public final class ListenTransactionError {
 		final String signerPrivateKey = System.getenv().getOrDefault(
 			"SIGNER_PRIVATE_KEY", "0".repeat(64));
 		final KeyPair signerKeyPair = new KeyPair(
-			new CryptoTypes.PrivateKey(signerPrivateKey));
-		// [<step-1]
+			new CryptoTypes.PrivateKey(signerPrivateKey)); // [<step-1]
 
 		// Connect to WebSocket [>step-2]
 		final WebSocketContainer container =
@@ -90,8 +89,7 @@ public final class ListenTransactionError {
 		remote.sendText(JSON_MAPPER.createObjectNode()
 			.put("uid", uid).put("subscribe", channel)
 			.toString());
-		System.out.println("Subscribed to status channel");
-		// [<step-3]
+		System.out.println("Subscribed to status channel"); // [<step-3]
 		// [>step-4]
 		// Build a transfer transaction with a non-existent mosaic
 		final JsonNode feeJSON = getJson("/network/fees/transaction");
@@ -119,9 +117,10 @@ public final class ListenTransactionError {
 			.attachSignature(transaction, signature);
 		transactionHash = facade.hashTransaction(transaction).toString();
 		// [<step-4]
-		announce("/transactions", jsonPayload);
-		System.out.printf("Announced transaction %s...%n",
-			transactionHash.substring(0, 16));
+		announceTransaction(
+			jsonPayload, "/transactions",
+			"Announced transaction "
+			+ transactionHash.substring(0, 16) + "...");
 
 		// Wait for error via WebSocket
 		rejected.join();
@@ -142,14 +141,19 @@ public final class ListenTransactionError {
 		return JSON_MAPPER.readTree(response.body());
 	}
 
-	private void announce(final String path, final String payload)
+	private void announceTransaction(
+		final String payload,
+		final String endpoint,
+		final String label
+	)
 		throws IOException, InterruptedException {
 		final HttpRequest request = HttpRequest.newBuilder(
-			URI.create(nodeUrl + path))
+			URI.create(nodeUrl + endpoint))
 			.header("Content-Type", "application/json")
 			.PUT(HttpRequest.BodyPublishers.ofString(payload))
 			.build();
 		HTTP_CLIENT.send(request, BodyHandlers.ofString());
+		System.out.println(label);
 	}
 
 	// Handle incoming messages [>step-5]

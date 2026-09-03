@@ -38,6 +38,59 @@ public final class FeeSponsorship {
 
 	private long feeMultiplier;
 
+	private void announceTransaction(
+		final String payload,
+		final String label
+	) throws IOException, InterruptedException {
+		System.out.printf("Announcing %s to /transactions%n", label);
+		final HttpRequest request = HttpRequest.newBuilder(
+			URI.create(nodeUrl + "/transactions"))
+			.header("Content-Type", "application/json")
+			.PUT(HttpRequest.BodyPublishers.ofString(payload))
+			.build();
+		final HttpResponse<String> response = HTTP_CLIENT.send(
+			request, BodyHandlers.ofString());
+		System.out.printf("  Response: %s%n", response.body());
+	}
+
+	private void waitForConfirmation(
+		final String transactionHash,
+		final String label
+	) throws IOException, InterruptedException {
+		System.out.printf("Waiting for %s confirmation...%n", label);
+		for (int attempt = 0; 60 > attempt; ++attempt) {
+			Thread.sleep(1000);
+			final String statusPath =
+				"/transactionStatus/" + transactionHash;
+			final HttpRequest request = HttpRequest.newBuilder(
+				URI.create(nodeUrl + statusPath)).GET().build();
+			final HttpResponse<String> response = HTTP_CLIENT.send(
+				request, BodyHandlers.ofString());
+			if (404 == response.statusCode()) {
+				System.out.println("  Transaction status: unknown");
+				continue;
+			}
+			if (2 != response.statusCode() / 100)
+				throw new IOException(
+					"HTTP " + response.statusCode());
+
+			final JsonNode status =
+				JSON_MAPPER.readTree(response.body());
+			final String group = status.get("group").asText();
+			System.out.printf("  Transaction status: %s%n", group);
+			if ("confirmed".equals(group)) {
+				System.out.printf("%s confirmed in %d seconds%n",
+					label, attempt);
+				return;
+			}
+			if ("failed".equals(group))
+				throw new IOException(String.format("%s failed: %s",
+					label, status.get("code").asText()));
+		}
+		throw new IOException(String.format(
+			"%s not confirmed after 60 seconds", label));
+	}
+
 	FeeSponsorship() {
 		final String appPrivateKey = System.getenv().getOrDefault(
 			"APP_PRIVATE_KEY", "0".repeat(64));
@@ -103,56 +156,13 @@ public final class FeeSponsorship {
 			.writeValueAsString(transaction.toJson()));
 
 		// Announce the transaction
-		final String announcePath = "/transactions";
-		System.out.printf(
-			"Announcing transaction to %s%n", announcePath);
-			final HttpRequest announceRequest = HttpRequest.newBuilder(
-				URI.create(nodeUrl + announcePath))
-				.header("Content-Type", "application/json")
-				.PUT(HttpRequest.BodyPublishers.ofString(jsonPayload))
-				.build();
-			final HttpResponse<String> announceResponse = HTTP_CLIENT.send(
-				announceRequest, BodyHandlers.ofString());
-			System.out.printf("  Response: %s%n", announceResponse.body());
+		announceTransaction(jsonPayload, "transaction");
 
 		// Wait for confirmation
-		final String statusPath =
-			"/transactionStatus/" + facade.hashTransaction(transaction);
-		System.out.printf(
-			"Waiting for confirmation from %s%n", statusPath);
-
-		for (int attempt = 0; 60 > attempt; ++attempt) {
-			Thread.sleep(1000);
-			try {
-				final HttpRequest request = HttpRequest.newBuilder(
-					URI.create(nodeUrl + statusPath)).GET().build();
-				final HttpResponse<String> response = HTTP_CLIENT.send(
-					request, BodyHandlers.ofString());
-				if (response.statusCode() / 100 != 2)
-					throw new IOException(response.toString());
-
-				final JsonNode status = JSON_MAPPER.readTree(
-					response.body());
-				System.out.printf("  Transaction status: %s%n",
-					status.get("group").asText());
-				if ("confirmed".equals(status.get("group").asText())) {
-					System.out.printf(
-						"Transaction confirmed in %d seconds%n",
-						attempt);
-					break;
-				}
-				if ("failed".equals(status.get("group").asText())) {
-					System.out.printf("Transaction failed: %s%n",
-						status.get("code").asText());
-					break;
-				}
-			} catch (final IOException ex) {
-				System.out.printf(
-					"  Transaction status: unknown | Cause: (%s)%n",
-					ex.getMessage()
-				);
-			}
-		}
+		final String transactionHash =
+			facade.hashTransaction(transaction).toString();
+		System.out.printf("Transaction hash: %s%n", transactionHash);
+		waitForConfirmation(transactionHash, "transaction");
 	}
 
 	// OPTION 1 [>step-1]

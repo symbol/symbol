@@ -31,11 +31,12 @@ Built transaction:
   ],
   "cosignatures": []
 }
+Transaction hash: AB9FB75C150AD471AC73A6CF278D82D122E2583CF02B3B9067274608A7D334E4
 Announcing transaction to /transactions
   Response: {"message":"packet 9 was pushed to the network via /transactions"}
-Waiting for confirmation from /transactionStatus/AB9FB75C150AD471AC73A6CF278D82D122E2583CF02B3B9067274608A7D334E4
+Waiting for transaction confirmation...
   Transaction status: unconfirmed
   Transaction status: unconfirmed
   ...
   Transaction status: confirmed
-Transaction confirmed in 9 seconds
+transaction confirmed in 9 seconds

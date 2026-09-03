@@ -155,6 +155,10 @@ JSON payload ready to be submitted directly to a node for announcement.
 
 {{ tutorial.code_snippet_tagged('step-5') }}
 
+The helper receives the JSON payload and a human-readable label.
+The label is only used in log messages, which makes the same helper reusable in tutorials that announce several
+transactions.
+
 Announcing a transaction is a simple request to the <put:/transactions> endpoint of any Symbol <API node:>.
 As long as the payload is correctly formed, the request will succeed with an HTTP 200 response.
 
@@ -175,10 +179,12 @@ as shown in the next step.
     [WebSockets](../websockets/listen-transaction-flow.md) provide a more responsive solution without the overhead of repeated API calls.
 
     In addition, the logic for checking transaction status is reusable.
-    It can be moved into a utility function or module, since it is needed after announcing every transaction.
+    This tutorial defines it as a helper because it is needed after announcing almost every transaction.
 
 The snippet above repeatedly queries the <get:/transactionStatus/{hash}> endpoint using the hash of the submitted
 transaction.
+Like the announcement helper, it receives a label so its output remains clear when a tutorial announces several
+transactions.
 The response may take one of several forms:
 
 * An HTTP error, indicating that the node has not yet started processing the transaction.
@@ -194,7 +200,7 @@ In any other case, the code waits one second and tries again, up to a maximum of
 
 The output shown below corresponds to a typical run of the program.
 
-```text linenums="1" hl_lines="3 7 11 13 14 18 25"
+```text linenums="1" hl_lines="3 7 11 13 14 19 26"
 --8<-- 'devbook/transactions/transfer.log'
 ```
 
@@ -215,10 +221,10 @@ Some highlights from the output:
 * **Mosaics** (line 14): The assets transferred.
     Here, `1000000` atomic units of the mosaic aliased by `symbol.xym` (<XYM:>), equal to 1 XYM.
 
-* **Announcement response** (line 18): The node accepted the payload.
+* **Announcement response** (line 19): The node accepted the payload.
     This does not yet mean the transaction is valid or included in a block.
 
-* **Confirmed status** (line 25): The transaction has been accepted and included in a block.
+* **Confirmed status** (line 26): The transaction has been accepted and included in a block.
 
 The number of status checks before confirmation can vary based on network conditions,
 and the initial `unknown` status may or may not appear,
@@ -226,7 +232,7 @@ depending on how quickly the node begins processing the transaction.
 
 To see the transaction from the network's perspective, you can visit the
 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) and search for the transaction hash.
-The hash is printed in the line that says `Waiting for confirmation from /transactionStatus/...`.
+The hash is printed in the line that starts with `Transaction hash:`.
 You should see the transaction move through the confirmation process in real time.
 
 Alternatively, you can search for the `signerPublicKey` to view the transaction in the history of the signer account.

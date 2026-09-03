@@ -215,7 +215,7 @@ public final class CrossChainSwap {
 		System.out.printf("Secret lock transaction hash: %s%n",
 			symbolLockHash);
 		announceTransaction(lockPayload, "/transactions", "secret lock");
-		waitForStatus(symbolLockHash, "confirmed", "Secret lock");
+		waitForConfirmation(symbolLockHash, "Secret lock");
 		// [<step-4]
 		// --- Step 3. Alice: Claim XYM on Symbol ---
 		System.out.println( // [>step-5]
@@ -248,7 +248,7 @@ public final class CrossChainSwap {
 		System.out.printf("Secret proof transaction hash: %s%n",
 			proofHash);
 		announceTransaction(proofPayload, "/transactions", "secret proof");
-		waitForStatus(proofHash, "confirmed", "Secret proof");
+		waitForConfirmation(proofHash, "Secret proof");
 		// [<step-5]
 		// --- Step 4. Bob: Withdraw ETH on Ethereum ---
 		System.out.println( // [>step-6]
@@ -309,15 +309,12 @@ public final class CrossChainSwap {
 		System.out.printf("  Response: %s%n", response.body());
 	}
 
-	// Helper function to wait for Symbol transaction status
-	private void waitForStatus(
+	// Helper function to wait for Symbol transaction confirmation
+	private void waitForConfirmation(
 		final String hash,
-		final String expectedStatus,
 		final String label
 	) throws IOException, InterruptedException {
-		System.out.printf(
-			"Waiting for %s to reach %s status...%n",
-			label, expectedStatus);
+		System.out.printf("Waiting for %s confirmation...%n", label);
 		int attempts = 0;
 		final int maxAttempts = 60;
 
@@ -346,9 +343,9 @@ public final class CrossChainSwap {
 					throw new IOException(String.format("%s failed: %s",
 						label, status.get("code").asText()));
 
-				if (status.get("group").asText().equals(expectedStatus)) {
-					System.out.printf("%s %s in %d seconds%n",
-						label, expectedStatus, attempts);
+				if ("confirmed".equals(status.get("group").asText())) {
+					System.out.printf("%s confirmed in %d seconds%n",
+						label, attempts);
 					return;
 				}
 			}
@@ -358,8 +355,7 @@ public final class CrossChainSwap {
 		}
 
 		throw new IOException(String.format(
-			"%s not %s after %d attempts",
-			label, expectedStatus, maxAttempts));
+			"%s not confirmed after %d attempts", label, maxAttempts));
 	}
 
 	// Poll Symbol for a confirmed secret proof transaction matching

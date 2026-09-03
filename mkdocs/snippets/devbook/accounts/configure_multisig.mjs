@@ -53,22 +53,23 @@ async function waitForConfirmation(transactionHash, label) {
 	console.log(`Waiting for ${label} confirmation...`);
 	for (let attempt = 0; 60 > attempt; attempt++) {
 		await new Promise(resolve => { setTimeout(resolve, 1000); });
-		try {
-			const response = await fetch(
-				`${NODE_URL}/transactionStatus/${transactionHash}`);
-			const status = await response.json();
-			console.log('  Transaction status:', status.group);
-			if ('confirmed' === status.group) {
-				console.log(`${label} confirmed in`, attempt, 'seconds');
-				return;
+		const response = await fetch(
+			`${NODE_URL}/transactionStatus/${transactionHash}`);
+		if (!response.ok) {
+			if (404 === response.status) {
+				console.log('  Transaction status: unknown');
+				continue;
 			}
-			if ('failed' === status.group)
-				throw new Error(`${label} failed: ${status.code}`);
-		} catch (e) {
-			if (e.message.includes('failed'))
-				throw e;
-			console.log('  Transaction status: unknown');
+			throw new Error(`HTTP ${response.status}`);
 		}
+		const status = await response.json();
+		console.log('  Transaction status:', status.group);
+		if ('confirmed' === status.group) {
+			console.log(`${label} confirmed in`, attempt, 'seconds');
+			return;
+		}
+		if ('failed' === status.group)
+			throw new Error(`${label} failed: ${status.code}`);
 	}
 	throw new Error(`${label} not confirmed after 60 seconds`);
 }

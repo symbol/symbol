@@ -198,7 +198,7 @@ digraph {
 
 以下に示す出力は、プログラムの典型的な実行結果に対応しています。
 
-```text linenums="1" hl_lines="8 12 16 46 51 58 64"
+```text linenums="1" hl_lines="8 12 16 46 51 58 62"
 --8<-- 'devbook/transactions/complete_aggregate.log'
 ```
 
@@ -210,7 +210,7 @@ digraph {
 * **46行目** (`"cosignatures": []`): 最初は空です。アカウント B の連署はアナウンス前に追加されます。
 * **51行目** (`"payload": "6801..."`): アグリゲートトランザクションとその埋め込みトランザクションから計算されたトランザクションペイロード。
 * **58行目** (`"signature": "7037..."`): アグリゲートトランザクションに対するアカウント B の連署。
-* **64行目** (`Waiting for confirmation ...`): 承認確認で示されているハッシュは、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索するために使用できます。
+* **62行目** (`Transaction hash`): このハッシュは、 [Symbol Testnet Explorer](https://testnet.symbol.fyi/) でトランザクションを検索するために使用できます。
 
 アグリゲートトランザクションは、ネットワークによって単一のアトミックな単位として扱われます。スワップは完全に実行されるか、トランザクション全体が失敗してアセットが一切転送されないかのどちらかとなります。
 

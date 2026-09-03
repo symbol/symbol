@@ -49,7 +49,8 @@ Built aggregate transaction:
 }
 Announcing transaction to /transactions
   Response: {"message":"packet 9 was pushed to the network via /transactions"}
-Waiting for confirmation from /transactionStatus/5390D8FAC80B9F76275DA857A3A18B6704FEA8B84026C2893F0041326B8C23D2
+Transaction hash: 5390D8FAC80B9F76275DA857A3A18B6704FEA8B84026C2893F0041326B8C23D2
+Waiting for transaction confirmation...
   Transaction status: unconfirmed
   Transaction status: confirmed
-Transaction confirmed in 6 seconds
+transaction confirmed in 6 seconds

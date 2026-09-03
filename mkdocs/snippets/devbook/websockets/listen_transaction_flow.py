@@ -11,8 +11,21 @@ from websockets import connect
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 WS_URL = NODE_URL.replace('http', 'ws', 1) + '/ws'
 print(f'Using node {NODE_URL}')
-# [>step-1]
-MONITOR_ADDRESS = os.getenv(
+
+
+def announce_transaction(payload, endpoint, label):
+	announce_request = urllib.request.Request(
+		f'{NODE_URL}{endpoint}',
+		data=payload.encode(),
+		headers={'Content-Type': 'application/json'},
+		method='PUT'
+	)
+	with urllib.request.urlopen(announce_request) as response:
+		response.read()
+	print(label)
+
+
+MONITOR_ADDRESS = os.getenv(  # [>step-1]
 	'MONITOR_ADDRESS',
 	'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I'
 )
@@ -23,8 +36,7 @@ SIGNER_PRIVATE_KEY = os.getenv(
 	'0000000000000000000000000000000000000000000000000000000000000000'
 )
 facade = SymbolFacade('testnet')
-signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))
-# [<step-1]
+signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))  # [<step-1]
 
 
 async def main():
@@ -68,17 +80,13 @@ async def main():
 		signature = facade.sign_transaction(signer_key_pair, transaction)
 		json_payload = facade.transaction_factory.attach_signature(
 			transaction, signature)
-		transaction_hash = str(facade.hash_transaction(transaction))  # [<step-4]
+		transaction_hash = str(facade.hash_transaction(transaction))
+		# [<step-4]
 		# [>step-5]
-		announce_request = urllib.request.Request(
-			f'{NODE_URL}/transactions',
-			data=json_payload.encode(),
-			headers={'Content-Type': 'application/json'},
-			method='PUT'
+		announce_transaction(
+			json_payload, '/transactions',
+			f'Announced transaction {transaction_hash[:16]}...'
 		)
-		with urllib.request.urlopen(announce_request) as resp:
-			resp.read()
-		print(f'Announced transaction {transaction_hash[:16]}...')
 
 		# Wait for confirmation via WebSocket
 		async for raw_message in websocket:
@@ -100,8 +108,7 @@ async def main():
 				'uid': uid,
 				'unsubscribe': channel
 			}))
-		print('Unsubscribed from all channels')
-		# [<step-6]
+		print('Unsubscribed from all channels')  # [<step-6]
 
 try:
 	asyncio.run(main())

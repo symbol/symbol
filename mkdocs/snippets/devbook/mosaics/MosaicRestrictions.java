@@ -67,31 +67,32 @@ public final class MosaicRestrictions {
 		System.out.printf("Waiting for %s confirmation...%n", label);
 		for (int attempt = 0; 60 > attempt; ++attempt) {
 			Thread.sleep(1000);
-			try {
-				final String statusPath =
-					"/transactionStatus/" + transactionHash;
-				final HttpRequest statusRequest = HttpRequest.newBuilder(
-					URI.create(nodeUrl + statusPath)).GET().build();
-				final HttpResponse<String> statusResponse = HTTP_CLIENT
-					.send(statusRequest, BodyHandlers.ofString());
-				final JsonNode status =
-					JSON_MAPPER.readTree(statusResponse.body());
-				final String group = status.get("group").asText();
-				System.out.printf("  Transaction status: %s%n", group);
-				if ("confirmed".equals(group)) {
-					System.out.printf("%s confirmed in %d seconds%n",
-						label, attempt);
-					return;
-				}
-				if ("failed".equals(group))
-					throw new IOException(String.format("%s failed: %s",
-						label, status.get("code").asText()));
-			} catch (final IOException ex) {
-				if (ex.getMessage().contains("failed"))
-					throw ex;
-
+			final String statusPath =
+				"/transactionStatus/" + transactionHash;
+			final HttpRequest statusRequest = HttpRequest.newBuilder(
+				URI.create(nodeUrl + statusPath)).GET().build();
+			final HttpResponse<String> statusResponse = HTTP_CLIENT
+				.send(statusRequest, BodyHandlers.ofString());
+			if (404 == statusResponse.statusCode()) {
 				System.out.println("  Transaction status: unknown");
+				continue;
 			}
+			if (2 != statusResponse.statusCode() / 100)
+				throw new IOException(
+					"HTTP " + statusResponse.statusCode());
+
+			final JsonNode status =
+				JSON_MAPPER.readTree(statusResponse.body());
+			final String group = status.get("group").asText();
+			System.out.printf("  Transaction status: %s%n", group);
+			if ("confirmed".equals(group)) {
+				System.out.printf("%s confirmed in %d seconds%n",
+					label, attempt);
+				return;
+			}
+			if ("failed".equals(group))
+				throw new IOException(String.format("%s failed: %s",
+					label, status.get("code").asText()));
 		}
 		throw new IOException(String.format(
 			"%s not confirmed after 60 seconds", label));
@@ -281,7 +282,7 @@ public final class MosaicRestrictions {
 		System.out.printf( // [>step-7]
 			"Bundling %d transaction(s) in an aggregate%n",
 			transactions.size());
-		Transaction transaction =
+		final Transaction aggregateTransaction =
 			facade.createTransactionFromTypedDescriptor(
 				new AggregateCompleteTransactionV3Descriptor(
 					SymbolFacade.hashEmbeddedTransactions(transactions),
@@ -292,34 +293,37 @@ public final class MosaicRestrictions {
 				2 * 60 * 60);
 		// [<step-7]
 		// Sign, announce and wait for confirmation
-		// [>step-8]
-		String payload = SymbolTransactionFactory.attachSignature(
-			transaction,
-			facade.signTransaction(ownerKeyPair, transaction));
-		String transactionHash =
-			facade.hashTransaction(transaction).toString();
-		announceTransaction(payload, "aggregate");
-		waitForConfirmation(transactionHash, "aggregate");
+		final String aggregatePayload = // [>step-8]
+			SymbolTransactionFactory.attachSignature(
+				aggregateTransaction,
+				facade.signTransaction(ownerKeyPair,
+					aggregateTransaction));
+		final String aggregateHash =
+			facade.hashTransaction(aggregateTransaction).toString();
+		announceTransaction(aggregatePayload, "aggregate");
+		waitForConfirmation(aggregateHash, "aggregate");
 		// [<step-8]
 		// Try to transfer the mosaic to the target address
-		// [>step-9]
-		transaction = facade.createTransactionFromTypedDescriptor(
-			new TransferTransactionV1Descriptor(
-				targetAddress,
-				List.of(new UnresolvedMosaicDescriptor(
-					new UnresolvedMosaicId(mosaicId),
-					new Amount(1))),
-				null),
-			ownerKeyPair.getPublicKey(),
-			feeMultiplier,
-			2 * 60 * 60);
-		payload = SymbolTransactionFactory.attachSignature(
-			transaction,
-			facade.signTransaction(ownerKeyPair, transaction));
-		transactionHash = facade.hashTransaction(transaction).toString();
+		final Transaction testTransaction = // [>step-9]
+			facade.createTransactionFromTypedDescriptor(
+				new TransferTransactionV1Descriptor(
+					targetAddress,
+					List.of(new UnresolvedMosaicDescriptor(
+						new UnresolvedMosaicId(mosaicId),
+						new Amount(1))),
+					null),
+				ownerKeyPair.getPublicKey(),
+				feeMultiplier,
+				2 * 60 * 60);
+		final String testPayload = SymbolTransactionFactory
+			.attachSignature(
+				testTransaction,
+				facade.signTransaction(ownerKeyPair, testTransaction));
+		final String testHash =
+			facade.hashTransaction(testTransaction).toString();
 		System.out.println("\nAttempting transfer to the target account");
-		announceTransaction(payload, "test transfer");
-		waitForConfirmation(transactionHash, "test transfer");
+		announceTransaction(testPayload, "test transfer");
+		waitForConfirmation(testHash, "test transfer");
 		// [<step-9]
 	}
 }

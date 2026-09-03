@@ -72,8 +72,7 @@ public final class ListenTransactionFlow {
 		final String signerPrivateKey = System.getenv().getOrDefault(
 			"SIGNER_PRIVATE_KEY", "0".repeat(64));
 		final KeyPair signerKeyPair = new KeyPair(
-			new CryptoTypes.PrivateKey(signerPrivateKey));
-		// [<step-1]
+			new CryptoTypes.PrivateKey(signerPrivateKey)); // [<step-1]
 
 		// Connect to WebSocket [>step-2]
 		final WebSocketContainer container =
@@ -95,8 +94,8 @@ public final class ListenTransactionFlow {
 				.toString());
 			System.out.printf(
 				"Subscribed to %s channel%n", channel.split("/")[0]);
-		}
-		// [<step-3]
+		} // [<step-3]
+
 		// Build and announce a transfer transaction [>step-4]
 		final JsonNode feeJSON = getJson("/network/fees/transaction");
 		final long feeMultiplier = Math.max(
@@ -119,9 +118,10 @@ public final class ListenTransactionFlow {
 			.attachSignature(transaction, signature);
 		transactionHash = facade.hashTransaction(transaction).toString();
 		// [<step-4]
-		announce("/transactions", jsonPayload);
-		System.out.printf("Announced transaction %s...%n",
-			transactionHash.substring(0, 16));
+		announceTransaction(
+			jsonPayload, "/transactions",
+			"Announced transaction "
+			+ transactionHash.substring(0, 16) + "...");
 
 		// Wait for confirmation via WebSocket
 		confirmed.join();
@@ -143,14 +143,19 @@ public final class ListenTransactionFlow {
 		return JSON_MAPPER.readTree(response.body());
 	}
 
-	private void announce(final String path, final String payload)
+	private void announceTransaction(
+		final String payload,
+		final String endpoint,
+		final String label
+	)
 		throws IOException, InterruptedException {
 		final HttpRequest request = HttpRequest.newBuilder(
-			URI.create(nodeUrl + path))
+			URI.create(nodeUrl + endpoint))
 			.header("Content-Type", "application/json")
 			.PUT(HttpRequest.BodyPublishers.ofString(payload))
 			.build();
 		HTTP_CLIENT.send(request, BodyHandlers.ofString());
+		System.out.println(label);
 	}
 
 	// Handle incoming messages [>step-5]
@@ -177,6 +182,5 @@ public final class ListenTransactionFlow {
 				transactionHash.substring(0, 16));
 			confirmed.complete(null);
 		}
-	}
-	// [<step-5]
+	} // [<step-5]
 }

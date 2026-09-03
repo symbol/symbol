@@ -40,7 +40,7 @@ public final class BondedAggregate {
 
 	private Address accountBAddress;
 
-	// Helper function to announce transaction
+	// Helper method to announce transaction
 	private void announceTransaction(
 		final String payload,
 		final String endpoint,
@@ -57,7 +57,7 @@ public final class BondedAggregate {
 		System.out.printf("  Response: %s%n", response.body());
 	}
 
-	// Helper function to wait for transaction status
+	// Helper method to wait for transaction status
 	private void waitForStatus(
 		final String hash,
 		final String expectedStatus,
@@ -123,9 +123,8 @@ public final class BondedAggregate {
 	private void run() throws IOException, InterruptedException {
 		System.out.printf("Using node %s%n", nodeUrl);
 
-		// [>step-1]
-		// Account A (initiates the aggregate tx
-		// and sends XYM to Account B)
+		// Account A (initiates the aggregate tx and sends XYM to [>step-1]
+		// Account B)
 		final String accountAPrivateKey = System.getenv().getOrDefault(
 			"ACCOUNT_A_PRIVATE_KEY", "0".repeat(64));
 		accountAKeyPair = new KeyPair(
@@ -142,8 +141,7 @@ public final class BondedAggregate {
 		accountBAddress = facade.network.publicKeyToAddress(
 			accountBKeyPair.getPublicKey());
 		System.out.printf("Account A: %s%n", accountAAddress);
-		System.out.printf("Account B: %s%n", accountBAddress);
-		// [<step-1]
+		System.out.printf("Account B: %s%n", accountBAddress); // [<step-1]
 
 		// Fetch recommended fees [>step-2]
 		final String feePath = "/network/fees/transaction";
@@ -172,8 +170,7 @@ public final class BondedAggregate {
 						new UnresolvedMosaicId(
 							IdGenerator.generateMosaicAliasId(
 								"symbol.xym")),
-							// 10 XYM
-							new Amount(10_000_000))),
+							new Amount(10_000_000))), // 10 XYM
 					null),
 				accountAKeyPair.getPublicKey());
 
@@ -185,8 +182,7 @@ public final class BondedAggregate {
 					accountAAddress,
 					List.of(new UnresolvedMosaicDescriptor(
 						new UnresolvedMosaicId(customMosaicId),
-							// 1 custom mosaic
-							new Amount(1))),
+							new Amount(1))), // 1 custom mosaic
 					null),
 				accountBKeyPair.getPublicKey());
 		// [<step-3]
@@ -309,8 +305,7 @@ public final class BondedAggregate {
 		System.out.println("[Account B] Verifying transaction: "
 			+ txData.get("transactions").size()
 			+ " embedded transactions"
-		);
-		// [<step-9]
+		); // [<step-9]
 		// [>step-10]
 		// Submit Account B's cosignature using the transaction hash
 		final String cosignaturePath = "/transactions/cosignature";
@@ -326,8 +321,8 @@ public final class BondedAggregate {
 		// Announce cosignature
 		announceTransaction(
 			cosignaturePayload, cosignaturePath, "cosignature"
-		);
-		// [<step-10]
+		); // [<step-10]
+
 		// Wait for final confirmation [>step-11]
 		waitForStatus(
 			bondedHash, "confirmed",

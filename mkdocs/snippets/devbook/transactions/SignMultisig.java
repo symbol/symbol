@@ -30,6 +30,59 @@ public final class SignMultisig {
 
 	private final SymbolFacade facade = new SymbolFacade("testnet");
 
+	private void announceTransaction(
+		final String payload,
+		final String label
+	) throws IOException, InterruptedException {
+		System.out.printf("Announcing %s to /transactions%n", label);
+		final HttpRequest request = HttpRequest.newBuilder(
+			URI.create(nodeUrl + "/transactions"))
+			.header("Content-Type", "application/json")
+			.PUT(HttpRequest.BodyPublishers.ofString(payload))
+			.build();
+		final HttpResponse<String> response = HTTP_CLIENT.send(
+			request, BodyHandlers.ofString());
+		System.out.printf("  Response: %s%n", response.body());
+	}
+
+	private void waitForConfirmation(
+		final String transactionHash,
+		final String label
+	) throws IOException, InterruptedException {
+		System.out.printf("Waiting for %s confirmation...%n", label);
+		for (int attempt = 0; 60 > attempt; ++attempt) {
+			Thread.sleep(1000);
+			final String statusPath =
+				"/transactionStatus/" + transactionHash;
+			final HttpRequest statusRequest = HttpRequest.newBuilder(
+				URI.create(nodeUrl + statusPath)).GET().build();
+			final HttpResponse<String> statusResponse = HTTP_CLIENT
+				.send(statusRequest, BodyHandlers.ofString());
+			if (404 == statusResponse.statusCode()) {
+				System.out.println("  Transaction status: unknown");
+				continue;
+			}
+			if (2 != statusResponse.statusCode() / 100)
+				throw new IOException(
+					"HTTP " + statusResponse.statusCode());
+
+			final JsonNode status =
+				JSON_MAPPER.readTree(statusResponse.body());
+			final String group = status.get("group").asText();
+			System.out.printf("  Transaction status: %s%n", group);
+			if ("confirmed".equals(group)) {
+				System.out.printf("%s confirmed in %d seconds%n",
+					label, attempt);
+				return;
+			}
+			if ("failed".equals(group))
+				throw new IOException(String.format("%s failed: %s",
+					label, status.get("code").asText()));
+		}
+		throw new IOException(String.format(
+			"%s not confirmed after 60 seconds", label));
+	}
+
 	public static void main(final String[] args) {
 		try {
 			new SignMultisig().run();
@@ -42,7 +95,6 @@ public final class SignMultisig {
 
 	private void run() throws IOException, InterruptedException {
 		System.out.printf("Using node %s%n", nodeUrl);
-
 		// [>step-1]
 		final String multisigPrivateKey = System.getenv().getOrDefault(
 			"MULTISIG_PRIVATE_KEY", "%064X".formatted(1));
@@ -56,8 +108,8 @@ public final class SignMultisig {
 		final KeyPair cosignatoryKeyPair = new KeyPair(
 			new CryptoTypes.PrivateKey(cosignatory0PrivateKey));
 		System.out.printf("Cosignatory public key: %s%n",
-			cosignatoryKeyPair.getPublicKey());
-		// [<step-1]
+			cosignatoryKeyPair.getPublicKey()); // [<step-1]
+
 
 		// Fetch recommended fees [>step-2]
 		final String feePath = "/network/fees/transaction";
@@ -101,10 +153,9 @@ public final class SignMultisig {
 					null),
 				cosignatoryKeyPair.getPublicKey(),
 				feeMultiplier,
-				2 * 60 * 60);
-		// [<step-4]
-		// [>step-5]
-		// Sign the aggregate using the cosignatory's signature
+				2 * 60 * 60); // [<step-4]
+
+		// Sign the aggregate using the cosignatory's signature [>step-5]
 		final String jsonPayload = SymbolTransactionFactory
 			.attachSignature(
 				transaction,
@@ -112,57 +163,15 @@ public final class SignMultisig {
 					cosignatoryKeyPair, transaction));
 		System.out.println("Built transaction:");
 		System.out.println(JSON_MAPPER.writerWithDefaultPrettyPrinter()
-			.writeValueAsString(transaction.toJson()));
-		// [<step-5]
-		// Announce the transaction [>step-6]
-		final String announcePath = "/transactions";
-		System.out.printf("Announcing transaction to %s%n", announcePath);
-		final HttpRequest announceRequest = HttpRequest.newBuilder(
-			URI.create(nodeUrl + announcePath))
-			.header("Content-Type", "application/json")
-			.PUT(HttpRequest.BodyPublishers.ofString(jsonPayload))
-			.build();
-		final HttpResponse<String> announceResponse = HTTP_CLIENT.send(
-			announceRequest, BodyHandlers.ofString());
-		System.out.printf("  Response: %s%n", announceResponse.body());
+			.writeValueAsString(transaction.toJson())); // [<step-5]
 
-		// Wait for confirmation
+		// Announce the transaction [>step-6]
 		final String transactionHash =
 			facade.hashTransaction(transaction).toString();
-		final String statusPath = "/transactionStatus/" + transactionHash;
-			System.out.printf(
-				"Waiting for confirmation from %s%n", statusPath);
+		System.out.printf("Transaction hash: %s%n", transactionHash);
+		announceTransaction(jsonPayload, "transaction");
 
-		for (int attempt = 1; 60 >= attempt; ++attempt) {
-			final HttpRequest statusRequest = HttpRequest.newBuilder(
-				URI.create(nodeUrl + statusPath)).GET().build();
-			final HttpResponse<String> response = HTTP_CLIENT.send(
-				statusRequest, BodyHandlers.ofString());
-
-			if (response.statusCode() / 100 == 2) {
-				final JsonNode status = JSON_MAPPER.readTree(
-					response.body());
-				System.out.printf("  Transaction status: %s%n",
-					status.get("group").asText());
-				if ("confirmed".equals(status.get("group").asText())) {
-					System.out.printf(
-						"Transaction confirmed in %d seconds%n",
-						attempt);
-					break;
-				}
-				if ("failed".equals(status.get("group").asText())) {
-					System.out.printf("Transaction failed: %s%n",
-						status.get("code").asText());
-					break;
-				}
-			} else {
-				System.out.printf(
-					"  Transaction status: unknown | Cause: %d%n",
-					response.statusCode());
-			}
-			Thread.sleep(1000);
-			if (60 == attempt)
-				System.out.println("Confirmation took too long.");
-		} // [<step-6]
+		// Wait for confirmation
+		waitForConfirmation(transactionHash, "transaction"); // [<step-6]
 	}
 }
