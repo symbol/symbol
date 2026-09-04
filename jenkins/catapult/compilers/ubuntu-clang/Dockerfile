@@ -12,7 +12,7 @@ RUN apt-get update >/dev/null && \
 	lsb-release \
 	software-properties-common \
 	xz-utils \
-	wget 
+	wget
 
 # Use the latest Clang version from Ubuntu.
 ARG COMPILER_VERSION=23
@@ -21,6 +21,10 @@ RUN apt-get update >/dev/null && \
 	chmod +x llvm.sh && \
 	./llvm.sh ${COMPILER_VERSION} && \
 	apt-get install -y \
+	llvm-${COMPILER_VERSION} \
+	llvm-${COMPILER_VERSION}-tools \
+	llvm-${COMPILER_VERSION}-dev \
+	liblldb-${COMPILER_VERSION}-dev \
 	clang-tools-${COMPILER_VERSION} \
 	libc++-${COMPILER_VERSION}-dev \
 	libc++abi-${COMPILER_VERSION}-dev \
