@@ -20,6 +20,11 @@ RUN apt-get update >/dev/null && \
 	wget https://apt.llvm.org/llvm.sh && \
 	chmod +x llvm.sh && \
 	./llvm.sh ${COMPILER_VERSION} && \
+	apt-get install -y \
+	clang-tools-${COMPILER_VERSION} \
+	libc++-${COMPILER_VERSION}-dev \
+	libc++abi-${COMPILER_VERSION}-dev \
+	libunwind-${COMPILER_VERSION}-dev && \
 	rm llvm.sh && \
 	apt-get clean && \
 	update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${COMPILER_VERSION} 100 && \
