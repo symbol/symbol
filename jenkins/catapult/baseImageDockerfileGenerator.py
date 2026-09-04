@@ -166,6 +166,9 @@ class OptionsManager:
 			# try to pass additional flags to disable faulty optimizations
 			descriptor.cxxflags += ['-mno-avx', '-mno-avx2']
 
+		if self.is_clang and self.compiler.version <= 23:
+			descriptor.cxxflags += ['-include new']
+
 		return self._cmake(descriptor)
 
 	def cppzmq(self):
