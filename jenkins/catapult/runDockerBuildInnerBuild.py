@@ -197,7 +197,7 @@ class BuildManager(BasicBuildManager):
 		for dependency_pattern in self.compiler.deps:
 			directory_path = os.path.dirname(dependency_pattern)
 			pattern = os.path.basename(dependency_pattern)
-			self.environment_manager.copy_glob_with_symlinks(directory_path, pattern, destination)
+			self.environment_manager.copy_glob_with_symlinks(directory_path, pattern, destination, True)
 
 	def copy_files(self, output_path):
 		deps_output_path = Path(f'{output_path}/deps').resolve()
