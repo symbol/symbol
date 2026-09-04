@@ -95,14 +95,14 @@ class EnvironmentManager:
 
 	# region file copying
 
-	def copy_glob_with_symlinks(self, directory_path, pattern, destination):
+	def copy_glob_with_symlinks(self, directory_path, pattern, destination, follow_symlinks=False):
 		self._print_command('copy_glob', [directory_path, pattern, destination])
 
 		if self.dry_run:
 			return
 
 		for file in Path(directory_path).glob(pattern):
-			shutil.copy(file, destination, follow_symlinks=False)
+			shutil.copy(file, destination, follow_symlinks=follow_symlinks)
 
 	def copy_tree_with_symlinks(self, source, destination):
 		self._print_command('copy_tree', [source, destination])
