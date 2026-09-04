@@ -86,7 +86,8 @@ void call(Closure body) {
 				agent {
 					docker {
 						image jobHelper.resolveBuildImageName(params.CI_ENVIRONMENT ?: resolveCiEnvironment(jenkinsfileParams)[0])
-						args jenkinsfileParams.dockerArgs ?: ''
+
+						args "--ulimit nofile=65536:65536${jenkinsfileParams.dockerArgs ? ' ' + jenkinsfileParams.dockerArgs : ''}"
 
 						// using the same node and the same workspace mounted to the container
 						reuseNode true
