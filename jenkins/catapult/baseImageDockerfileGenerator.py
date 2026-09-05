@@ -196,6 +196,9 @@ class OptionsManager:
 		if self.compiler.c.startswith('clang') and 15 == self.compiler.version:
 			descriptor.cxxflags += ['-Wno-error=unused-but-set-variable']
 
+		if self.is_clang and self.compiler.version <= 23:
+			descriptor.cxxflags += ['-include iterator']
+
 		return self._cmake(descriptor)
 
 	def googletest(self):
