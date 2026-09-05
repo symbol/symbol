@@ -23,7 +23,7 @@ Symbolは、特定の[アカウント](default: アカウント) に対する[�
 * 監視するアカウントの[アドレス](default: アドレス) を保有していること。
 * トランザクション手数料を支払うのに十分な残高を持つアカウントを保有していること。
   [秘密鍵からのアカウント作成](../accounts/create-from-private-key.md) または
-  [ウォレットを使用したアカウントの作成](../../userbook/wallet/create-account.md) を参照してください。
+  [ウォレットを使用したアカウントの作成](../../userbook/desktop-wallet/create-account.md) を参照してください。
 
 さらに、言語固有のWebSocketライブラリをインストールしてください。
 

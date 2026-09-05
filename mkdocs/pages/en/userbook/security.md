@@ -83,7 +83,7 @@ before signing.
 Below is an example of an aggregate transaction containing two embedded transactions.
 Both must be reviewed and understood before signing.
 
-![Aggregate transaction](aggregate-transaction.png)
+![Aggregate transaction](aggregate-transaction.webp)
 
 ## Spoofing
 

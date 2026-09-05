@@ -45,7 +45,7 @@ Before you start, make sure to:
     See [Setting Up a Development Environment](../start/setup.md).
 * Create 3 <accounts:>: one to turn into a multisig, and the other two to act as cosignatories.
     You can do this either [from code](./create-from-private-key.md) or
-    [by using a wallet](../../userbook/wallet/create-account.md).
+    [by using a wallet](../../userbook/desktop-wallet/create-account.md).
 * Obtain <XYM:> to pay for the transaction fees and fund the accounts.
     See [Getting Testnet Funds from the Faucet](./testnet-faucet.md).
 

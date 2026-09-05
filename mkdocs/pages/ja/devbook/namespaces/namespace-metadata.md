@@ -31,7 +31,7 @@ digraph {
 
 * 開発環境をセットアップしていること。
     [開発環境のセットアップ](../start/setup.md) を参照してください。
-* ネームスペースを所有するための [アカウント](default:アカウント) を、[コード](../accounts/create-from-private-key.md) または [ウォレット](../../userbook/wallet/create-account.md) を使用して作成していること。
+* ネームスペースを所有するための [アカウント](default:アカウント) を、[コード](../accounts/create-from-private-key.md) または [ウォレット](../../userbook/desktop-wallet/create-account.md) を使用して作成していること。
 * 署名者アカウントが所有する [ネームスペースを登録](./register-root-namespace.md) していること。
 * [トランザクション](default:トランザクション) 手数料を支払うための [XYM](default:XYM) を入手していること。
     [蛇口 (Faucet) からテストネットの資金を入手する](../accounts/testnet-faucet.md) を参照してください。

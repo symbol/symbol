@@ -14,6 +14,22 @@ title: はじめに
 
 このマニュアルは次のセクションで構成されています。
 
-* [Symbol デスクトップウォレット](wallet/install.md)：アカウントを管理し、トランザクションを扱います。
-* [Shoestring](shoestring/overview.md)：Symbol ノードをデプロイして保守します。
-* [セキュリティ](./security.md)：資産とアカウントを安全に保つ方法を学びます。
+<div class="icon-list" markdown>
+
+* :octicons-device-desktop-24: [Symbol デスクトップウォレット](desktop-wallet/intro.md)
+
+    アカウントを管理し、トランザクションを扱います。
+
+* :octicons-device-mobile-24: [Symbol モバイルウォレット](mobile-wallet/intro.md)
+
+    スマートフォンからアカウントを管理し、トランザクションを扱います。
+
+* :material-network-outline: [Shoestring](shoestring/overview.md)
+
+    Symbol ノードをデプロイして保守します。
+
+* :material-security: [セキュリティ](./security.md)
+
+    資産とアカウントを安全に保つ方法を学びます。
+
+</div>

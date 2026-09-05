@@ -19,7 +19,7 @@ tutorial_level: beginner
   [開発環境のセットアップ](../start/setup.md) を参照してください。
 * 監視するアカウントのアドレスを保有していること。
   [秘密鍵からのアカウント作成](../accounts/create-from-private-key.md) または
-  [ウォレットを使用したアカウントの作成](../../userbook/wallet/create-account.md) を参照してください。
+  [ウォレットを使用したアカウントの作成](../../userbook/desktop-wallet/create-account.md) を参照してください。
 
 さらに、言語固有の WebSocket ライブラリをインストールしてください。
 
