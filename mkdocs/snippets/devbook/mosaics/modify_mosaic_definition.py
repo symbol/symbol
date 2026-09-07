@@ -9,8 +9,43 @@ from symbolchain.symbol.IdGenerator import generate_mosaic_id
 
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
-# [>step-1]
-SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',
+
+
+# Helper function to announce a transaction
+def announce_transaction(payload, label):
+	print(f'Announcing {label} to /transactions')
+	request = urllib.request.Request(
+		f'{NODE_URL}/transactions',
+		data=payload.encode(),
+		headers={'Content-Type': 'application/json'},
+		method='PUT'
+	)
+	with urllib.request.urlopen(request) as announce_response:
+		print(f'  Response: {announce_response.read().decode()}')
+
+
+# Helper function to wait for transaction confirmation
+def wait_for_confirmation(tx_hash, label):
+	print(f'Waiting for {label} confirmation...')
+	for attempt in range(60):
+		time.sleep(1)
+		try:
+			url = f'{NODE_URL}/transactionStatus/{tx_hash}'
+			with urllib.request.urlopen(url) as confirm_response:
+				status = json.loads(confirm_response.read().decode())
+				print(f'  Transaction status: {status["group"]}')
+				if status['group'] == 'confirmed':
+					print(f'{label} confirmed in {attempt} seconds')
+					return
+				if status['group'] == 'failed':
+					raise RuntimeError(
+						f'{label} failed: {status["code"]}')
+		except urllib.error.HTTPError:
+			print('  Transaction status: unknown')
+	raise TimeoutError(f'{label} not confirmed after 60 seconds')
+
+
+SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',  # [>step-1]
 	'0000000000000000000000000000000000000000000000000000000000000000')
 signer_key_pair = SymbolFacade.KeyPair(
 	PrivateKey(SIGNER_PRIVATE_KEY))
@@ -61,35 +96,10 @@ try:
 	print(f'Transaction hash: {modify_hash}')
 
 	# Announce transaction
-	print('Announcing mosaic modification to /transactions')
-	request = urllib.request.Request(
-		f'{NODE_URL}/transactions',
-		data=json_payload.encode(),
-		headers={'Content-Type': 'application/json'},
-		method='PUT'
-	)
-	with urllib.request.urlopen(request) as response:
-		print(f'  Response: {response.read().decode()}')
+	announce_transaction(json_payload, 'mosaic modification')
 	# [<step-4]
 	# Wait for confirmation [>step-5]
-	print('Waiting for mosaic modification confirmation...')
-	for attempt in range(60):
-		time.sleep(1)
-		try:
-			status_url = (
-				f'{NODE_URL}/transactionStatus/{modify_hash}')
-			with urllib.request.urlopen(status_url) as response:
-				status = json.loads(response.read().decode())
-				print(f'  Transaction status: {status["group"]}')
-			if status['group'] == 'confirmed':
-				print('Mosaic modification confirmed in',
-					attempt, 'seconds')
-				break
-			if status['group'] == 'failed':
-				raise RuntimeError(
-					'Mosaic modification failed:', status['code'])
-		except urllib.error.HTTPError:
-			print('  Transaction status: unknown')
+	wait_for_confirmation(modify_hash, 'mosaic modification')
 	# [<step-5]
 	# Retrieve the mosaic [>step-6]
 	mosaic_id_hex = f'{mosaic_id:016X}'

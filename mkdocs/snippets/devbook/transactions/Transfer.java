@@ -1,0 +1,158 @@
+//JAVA 21+
+//DEPS org.symbol:symbol-sdk:3.3.1
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.util.List;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.symbol.sdk.CryptoTypes;
+import org.symbol.sdk.facade.SymbolFacade;
+import org.symbol.sdk.symbol.IdGenerator;
+import org.symbol.sdk.symbol.KeyPair;
+import org.symbol.sdk.symbol.SymbolTransactionFactory;
+import org.symbol.sdk.symbol.descriptors.*;
+import org.symbol.sdk.symbol.models.*;
+
+public final class Transfer {
+	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
+
+	private static final HttpClient HTTP_CLIENT =
+		HttpClient.newHttpClient();
+
+	private final String nodeUrl = System.getenv().getOrDefault(
+		"NODE_URL", "https://reference.symboltest.net:3001");
+
+	private final SymbolFacade facade = new SymbolFacade("testnet");
+
+	// Helper method to announce a transaction [>step-5]
+	private void announceTransaction(
+		final String payload,
+		final String label
+	) throws IOException, InterruptedException {
+		System.out.printf("Announcing %s to /transactions%n", label);
+		final HttpRequest request = HttpRequest.newBuilder(
+			URI.create(nodeUrl + "/transactions"))
+			.header("Content-Type", "application/json")
+			.PUT(HttpRequest.BodyPublishers.ofString(payload))
+			.build();
+		final HttpResponse<String> response = HTTP_CLIENT.send(
+			request, BodyHandlers.ofString());
+		System.out.printf("  Response: %s%n", response.body());
+	}
+	// [<step-5]
+
+	// Helper method to wait for transaction confirmation [>step-6]
+	private void waitForConfirmation(
+		final String transactionHash,
+		final String label
+	) throws IOException, InterruptedException {
+		System.out.printf("Waiting for %s confirmation...%n", label);
+		for (int attempt = 0; 60 > attempt; ++attempt) {
+			Thread.sleep(1000);
+			final String statusPath =
+				"/transactionStatus/" + transactionHash;
+			final HttpRequest statusRequest = HttpRequest.newBuilder(
+				URI.create(nodeUrl + statusPath)).GET().build();
+			final HttpResponse<String> statusResponse = HTTP_CLIENT
+				.send(statusRequest, BodyHandlers.ofString());
+			if (404 == statusResponse.statusCode()) {
+				System.out.println("  Transaction status: unknown");
+				continue;
+			}
+			if (2 != statusResponse.statusCode() / 100)
+				throw new IOException(
+					"HTTP " + statusResponse.statusCode());
+
+			final JsonNode status =
+				JSON_MAPPER.readTree(statusResponse.body());
+			final String group = status.get("group").asText();
+			System.out.printf("  Transaction status: %s%n", group);
+			if ("confirmed".equals(group)) {
+				System.out.printf("%s confirmed in %d seconds%n",
+					label, attempt);
+				return;
+			}
+			if ("failed".equals(group))
+				throw new IOException(String.format("%s failed: %s",
+					label, status.get("code").asText()));
+		}
+		throw new IOException(String.format(
+			"%s not confirmed after 60 seconds", label));
+	}
+	// [<step-6]
+
+	public static void main(final String[] args) {
+		try {
+			new Transfer().run();
+		} catch (final Exception ex) {
+			System.out.println(null == ex.getMessage()
+				? ex.toString()
+				: ex.getMessage());
+		}
+	}
+
+	private void run() throws IOException, InterruptedException {
+		System.out.printf("Using node %s%n", nodeUrl);
+
+		// [>step-1]
+		final String signerPrivateKey = System.getenv().getOrDefault(
+			"SIGNER_PRIVATE_KEY", "0".repeat(64));
+		final KeyPair signerKeyPair = new KeyPair(
+			new CryptoTypes.PrivateKey(signerPrivateKey));
+		// [<step-1]
+
+		// Fetch recommended fees [>step-2]
+		final String feePath = "/network/fees/transaction";
+		System.out.printf("Fetching recommended fees from %s%n", feePath);
+		final HttpRequest feeRequest = HttpRequest.newBuilder(
+			URI.create(nodeUrl + feePath)).GET().build();
+		final HttpResponse<String> feeResponse = HTTP_CLIENT.send(
+			feeRequest, BodyHandlers.ofString());
+		final JsonNode feeJSON = JSON_MAPPER.readTree(feeResponse.body());
+		final long medianMultiplier =
+			feeJSON.get("medianFeeMultiplier").asLong();
+		final long minimumMultiplier =
+			feeJSON.get("minFeeMultiplier").asLong();
+		final long feeMultiplier = Math.max(
+			medianMultiplier, minimumMultiplier);
+		System.out.printf("  Fee multiplier: %d%n", feeMultiplier);
+		// [<step-2]
+		// Build the transaction [>step-3]
+		final Transaction transaction =
+			facade.createTransactionFromTypedDescriptor(
+				new TransferTransactionV1Descriptor(
+					facade.network.publicKeyToAddress(
+						signerKeyPair.getPublicKey()),
+					List.of(new UnresolvedMosaicDescriptor(
+						new UnresolvedMosaicId(
+							IdGenerator.generateMosaicAliasId(
+								"symbol.xym")),
+						new Amount(1_000_000))), // 1 XYM
+					null),
+				signerKeyPair.getPublicKey(),
+				feeMultiplier,
+				2 * 60 * 60);
+		// [<step-3]
+		// Sign transaction and generate final payload [>step-4]
+		final CryptoTypes.Signature signature = facade.signTransaction(
+			signerKeyPair, transaction);
+		final String jsonPayload = SymbolTransactionFactory
+			.attachSignature(transaction, signature);
+		System.out.println("Built transaction:");
+		System.out.println(JSON_MAPPER.writerWithDefaultPrettyPrinter()
+			.writeValueAsString(transaction.toJson()));
+		// [<step-4]
+		final String transactionHash =
+			facade.hashTransaction(transaction).toString();
+		System.out.printf("Transaction hash: %s%n", transactionHash);
+		announceTransaction(jsonPayload, "transaction");
+		waitForConfirmation(transactionHash, "transaction");
+	}
+}

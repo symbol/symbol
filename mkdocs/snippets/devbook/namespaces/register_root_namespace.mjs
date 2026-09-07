@@ -10,6 +10,44 @@ import {
 const NODE_URL = process.env.NODE_URL ||
 	'https://reference.symboltest.net:3001';
 console.log('Using node', NODE_URL);
+
+// Helper function to announce a transaction
+async function announceTransaction(payload, label) {
+	console.log(`Announcing ${label} to /transactions`);
+	const response = await fetch(`${NODE_URL}/transactions`, {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		body: payload
+	});
+	console.log('  Response:', await response.text());
+}
+
+// Helper function to wait for transaction confirmation
+async function waitForConfirmation(transactionHash, label) {
+	console.log(`Waiting for ${label} confirmation...`);
+	for (let attempt = 0; 60 > attempt; attempt++) {
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
+		const response = await fetch(
+			`${NODE_URL}/transactionStatus/${transactionHash}`);
+		if (!response.ok) {
+			if (404 === response.status) {
+				console.log('  Transaction status: unknown');
+				continue;
+			}
+			throw new Error(`HTTP ${response.status}`);
+		}
+		const status = await response.json();
+		console.log('  Transaction status:', status.group);
+		if ('confirmed' === status.group) {
+			console.log(`${label} confirmed in`, attempt, 'seconds');
+			return;
+		}
+		if ('failed' === status.group)
+			throw new Error(`${label} failed: ${status.code}`);
+	}
+	throw new Error(`${label} not confirmed after 60 seconds`);
+}
+
 // [>step-1]
 const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY ||
 	'0000000000000000000000000000000000000000000000000000000000000000';
@@ -62,41 +100,10 @@ try {
 	console.log('Transaction hash:', transactionHash);
 
 	// Announce transaction
-	console.log('Announcing namespace registration to /transactions');
-	const announceResponse = await fetch(`${NODE_URL}/transactions`, {
-		method: 'PUT',
-		headers: { 'Content-Type': 'application/json' },
-		body: jsonPayload
-	});
-	console.log('  Response:', await announceResponse.text());
+	await announceTransaction(jsonPayload, 'namespace registration');
 	// [<step-5]
 	// Wait for confirmation [>step-6]
-	console.log('Waiting for namespace registration confirmation...');
-	const statusPath = `/transactionStatus/${transactionHash}`;
-	for (let attempt = 1; 60 >= attempt; ++attempt) {
-		await new Promise(resolve => { setTimeout(resolve, 1000); });
-		const response = await fetch(`${NODE_URL}${statusPath}`);
-
-		if (response.ok) {
-			const status = await response.json();
-			console.log('  Transaction status:', status.group);
-			if ('confirmed' === status.group) {
-				console.log('Transaction confirmed in', attempt,
-					'seconds');
-				break;
-			}
-			if ('failed' === status.group) {
-				console.log('Transaction failed:', status.code);
-				break;
-			}
-		} else {
-			console.log('  Transaction status: unknown | Cause:',
-				response.status
-			);
-		}
-		if (60 === attempt)
-			console.warn('Confirmation took too long.');
-	}
+	await waitForConfirmation(transactionHash, 'namespace registration');
 	// [<step-6]
 	// Retrieve the namespace [>step-7]
 	const namespaceId = generateNamespaceId(namespaceName);

@@ -58,7 +58,7 @@ transactions are announced and confirmed, and the
 
 {% import 'tutorial.jinja2' as tutorial with context %}
 
-{{ tutorial.code_full_tagged('devbook/accounts/configure_multisig', ['py', 'js']) }}
+{{ tutorial.code_full_tagged('devbook/accounts/configure_multisig') }}
 
 ## Code Explanation
 
@@ -247,7 +247,7 @@ The output shown below corresponds to two typical runs of the program.
 
 === ":material-plus-thick: Enabling the Multisig"
 
-    ```text linenums="1" hl_lines="2-4 8 25-27"
+    ```text linenums="1" hl_lines="2-4 8 25-29"
     --8<-- 'devbook/accounts/configure_multisig_enable.log'
     ```
 

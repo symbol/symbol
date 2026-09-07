@@ -11,6 +11,41 @@ from symbolchain.symbol.IdGenerator import generate_mosaic_alias_id
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 print(f'Using node {NODE_URL}')
 
+
+# Helper function to announce a transaction
+def announce_transaction(payload, label):
+	print(f'Announcing {label} to /transactions')
+	request = urllib.request.Request(
+		f'{NODE_URL}/transactions',
+		data=payload.encode(),
+		headers={'Content-Type': 'application/json'},
+		method='PUT'
+	)
+	with urllib.request.urlopen(request) as announce_response:
+		print(f'  Response: {announce_response.read().decode()}')
+
+
+# Helper function to wait for transaction confirmation
+def wait_for_confirmation(tx_hash, label):
+	print(f'Waiting for {label} confirmation...')
+	for attempt in range(60):
+		time.sleep(1)
+		try:
+			url = f'{NODE_URL}/transactionStatus/{tx_hash}'
+			with urllib.request.urlopen(url) as confirm_response:
+				status = json.loads(confirm_response.read().decode())
+				print(f'  Transaction status: {status["group"]}')
+				if status['group'] == 'confirmed':
+					print(f'{label} confirmed in {attempt} seconds')
+					return
+				if status['group'] == 'failed':
+					raise RuntimeError(
+						f'{label} failed: {status["code"]}')
+		except urllib.error.HTTPError:
+			print('  Transaction status: unknown')
+	raise TimeoutError(f'{label} not confirmed after 60 seconds')
+
+
 APP_PRIVATE_KEY = os.getenv('APP_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
 app_key_pair = SymbolFacade.KeyPair(
@@ -156,39 +191,12 @@ try:
 	print(json.dumps(agg_transaction.to_json(), indent=2))
 
 	# Announce the transaction
-	announce_path = '/transactions'
-	print(f'Announcing transaction to {announce_path}')
-	announce_request = urllib.request.Request(
-		f'{NODE_URL}{announce_path}',
-		data=agg_json_payload.encode(),
-		headers={'Content-Type': 'application/json'},
-		method='PUT'
-	)
-	with urllib.request.urlopen(announce_request) as response:
-		print(f'  Response: {response.read().decode()}')
+	announce_transaction(agg_json_payload, 'transaction')
 
 	# Wait for confirmation
-	status_path = (
-		f'/transactionStatus/{facade.hash_transaction(agg_transaction)}')
-	print(f'Waiting for confirmation from {status_path}')
-	for attempt in range(60):
-		time.sleep(1)
-		try:
-			with urllib.request.urlopen(
-				f'{NODE_URL}{status_path}'
-			) as response:
-				status = json.loads(response.read().decode())
-				print(f'  Transaction status: {status['group']}')
-				if status['group'] == 'confirmed':
-					print(f'Transaction confirmed in {attempt} seconds')
-					break
-				if status['group'] == 'failed':
-					print(f'Transaction failed: {status['code']}')
-					break
-		except urllib.error.HTTPError as e:
-			print(f'  Transaction status: unknown | Cause: ({e.msg})')
-	else:
-		print('Confirmation took too long.')
+	transaction_hash = facade.hash_transaction(agg_transaction)
+	print(f'Transaction hash: {transaction_hash}')
+	wait_for_confirmation(transaction_hash, 'transaction')
 
 except urllib.error.URLError as e:
 	print(e.reason)

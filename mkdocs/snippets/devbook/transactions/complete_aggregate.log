@@ -59,11 +59,12 @@ Built aggregate transaction without signatures:
 }
 [Account B] <== Cosignature sent back to Account A (offchain)
 [Account A] Ready to announce
+Transaction hash: 7F8BE244311CEB28C77CBACE81469DDAD231A48C954961F0E04E38A2B7AA2016
 Announcing transaction to /transactions
   Response: {"message":"packet 9 was pushed to the network via /transactions"}
-Waiting for confirmation from /transactionStatus/7F8BE244311CEB28C77CBACE81469DDAD231A48C954961F0E04E38A2B7AA2016
+Waiting for transaction confirmation...
   Transaction status: unconfirmed
   Transaction status: unconfirmed
   Transaction status: unconfirmed
   Transaction status: confirmed
-Transaction confirmed in 14 seconds
+transaction confirmed in 14 seconds

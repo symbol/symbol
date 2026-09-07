@@ -60,8 +60,7 @@ def wait_for_status(hash_value, expected_status, label):
 	)
 
 
-# [>step-1]
-# Account A (initiates the aggregate tx and sends XYM to Account B)
+# Account A (initiates the aggregate tx and sends XYM to Account B) [>step-1]
 ACCOUNT_A_PRIVATE_KEY = os.getenv('ACCOUNT_A_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
 account_a_key_pair = SymbolFacade.KeyPair(
@@ -100,7 +99,7 @@ try:
 				'recipient_address': account_b_address,
 				'mosaics': [{
 					'mosaic_id': generate_mosaic_alias_id('symbol.xym'),
-					'amount': 10_000_000  # 10 XYM (divisibility = 6)
+					'amount': 10_000_000  # 10 XYM
 				}]
 			},
 			account_a_key_pair.public_key))
@@ -114,7 +113,7 @@ try:
 				'recipient_address': account_a_address,
 				'mosaics': [{
 					'mosaic_id': custom_mosaic_id,
-					'amount': 1  # 1 custom mosaic (divisibility = 0)
+					'amount': 1  # 1 custom mosaic
 				}]
 			},
 			account_b_key_pair.public_key))

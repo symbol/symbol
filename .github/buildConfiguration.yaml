@@ -51,6 +51,7 @@ builds:
     dependsOn:
       - sdk/javascript
       - sdk/python
+      - sdk/java
 
 customBuilds:
   - name: Nightly Job

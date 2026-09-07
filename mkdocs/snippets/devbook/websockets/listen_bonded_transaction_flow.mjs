@@ -10,6 +10,16 @@ const NODE_URL = process.env.NODE_URL ||
 	'https://reference.symboltest.net:3001';
 const WS_URL = `${NODE_URL.replace('http', 'ws')}/ws`;
 console.log(`Using node ${NODE_URL}`);
+
+async function announceTransaction(payload, endpoint, label) {
+	await fetch(`${NODE_URL}${endpoint}`, {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		body: payload
+	});
+	console.log(label);
+}
+
 // [>step-1]
 const ACCOUNT_A_PRIVATE_KEY = process.env.ACCOUNT_A_PRIVATE_KEY ||
 	'0000000000000000000000000000000000000000000000000000000000000000';
@@ -37,28 +47,30 @@ try {
 		feeJSON.medianFeeMultiplier, feeJSON.minFeeMultiplier);
 
 	// [Account A] Build embedded transactions for the swap [>step-2]
-	const embeddedTx1 = facade.createEmbeddedTransactionFromTypedDescriptor(
-		new descriptors.TransferTransactionV1Descriptor(
-			accountBAddress,
-			[
-				new descriptors.UnresolvedMosaicDescriptor(
-					generateMosaicAliasId('symbol.xym'),
-					new models.Amount(10_000_000n))
-			],
-			undefined),
-		accountAKeyPair.publicKey);
+	const embeddedTx1 =
+		facade.createEmbeddedTransactionFromTypedDescriptor(
+			new descriptors.TransferTransactionV1Descriptor(
+				accountBAddress,
+				[
+					new descriptors.UnresolvedMosaicDescriptor(
+						generateMosaicAliasId('symbol.xym'),
+						new models.Amount(10_000_000n))
+				],
+				undefined),
+			accountAKeyPair.publicKey);
 
 	const customMosaicId = 0x6D1314BE751B62C2n;
-	const embeddedTx2 = facade.createEmbeddedTransactionFromTypedDescriptor(
-		new descriptors.TransferTransactionV1Descriptor(
-			accountAAddress,
-			[
-				new descriptors.UnresolvedMosaicDescriptor(
-					customMosaicId,
-					new models.Amount(1n))
-			],
-			undefined),
-		accountBKeyPair.publicKey);
+	const embeddedTx2 =
+		facade.createEmbeddedTransactionFromTypedDescriptor(
+			new descriptors.TransferTransactionV1Descriptor(
+				accountAAddress,
+				[
+					new descriptors.UnresolvedMosaicDescriptor(
+						customMosaicId,
+						new models.Amount(1n))
+				],
+				undefined),
+			accountBKeyPair.publicKey);
 
 	// Build the bonded aggregate transaction
 	const embeddedTxs = [embeddedTx1, embeddedTx2];
@@ -121,12 +133,9 @@ try {
 	}
 
 	// Announce hash lock
-	await fetch(`${NODE_URL}/transactions`, {
-		method: 'PUT',
-		headers: { 'Content-Type': 'application/json' },
-		body: hashLockPayload
-	});
-	console.log('[Account A] Announced hash lock ' +
+	await announceTransaction(
+		hashLockPayload, '/transactions',
+		'[Account A] Announced hash lock ' +
 		`${hashLockHash.substring(0, 16)}...`);
 
 	// Wait for hash lock confirmation
@@ -218,12 +227,10 @@ try {
 						signature: cosignature.signature.toString(),
 						parentHash: cosignature.parentHash.toString()
 					});
-					fetch(`${NODE_URL}/transactions/cosignature`, {
-						method: 'PUT',
-						headers: { 'Content-Type': 'application/json' },
-						body: cosignaturePayload
-					}).then(() => console.log(
-						'[Account B] Submitted cosignature'))
+					announceTransaction(
+						cosignaturePayload,
+						'/transactions/cosignature',
+						'[Account B] Submitted cosignature')
 						.catch(err => console.error(
 							'Cosignature failed:', err));
 				}
@@ -245,14 +252,10 @@ try {
 	});
 	// [<step-5]
 	// [Account A] Announce bonded aggregate [>step-4]
-	await fetch(`${NODE_URL}/transactions/partial`, {
-		method: 'PUT',
-		headers: { 'Content-Type': 'application/json' },
-		body: bondedPayload
-	});
-	console.log('[Account A] Announced bonded ' +
-		`${bondedHash.substring(0, 16)}...`);
-	// [<step-4]
+	await announceTransaction(
+		bondedPayload, '/transactions/partial',
+		'[Account A] Announced bonded ' +
+		`${bondedHash.substring(0, 16)}...`); // [<step-4]
 
 	// Wait for confirmation via WebSocket
 	await confirmed;

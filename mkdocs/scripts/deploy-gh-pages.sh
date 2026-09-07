@@ -3,8 +3,10 @@
 set -ex
 
 rm -rf ../docs ../docs-staging
-SYMBOL_DOCS_DISABLE_TS=false mkdocs build -f config/mkdocs.en.yml
-SYMBOL_DOCS_DISABLE_TS=false mkdocs build -f config/mkdocs.ja.yml
+SYMBOL_DOCS_DISABLE_TS=false SYMBOL_DOCS_DISABLE_JAVA=false \
+	mkdocs build -f config/mkdocs.en.yml
+SYMBOL_DOCS_DISABLE_TS=false SYMBOL_DOCS_DISABLE_JAVA=false \
+	mkdocs build -f config/mkdocs.ja.yml
 cd ..
 mv docs docs-staging
 git checkout gh-pages

@@ -28,7 +28,7 @@ Waiting for mosaic definition confirmation...
   Transaction status: unconfirmed
   Transaction status: unconfirmed
   Transaction status: confirmed
-Mosaic definition confirmed in 12 seconds
+mosaic definition confirmed in 12 seconds
 
 --- Increasing mosaic supply ---
 Built mosaic supply change transaction:
@@ -50,7 +50,7 @@ Announcing mosaic supply change to /transactions
 Waiting for mosaic supply change confirmation...
   Transaction status: unconfirmed
   Transaction status: confirmed
-Mosaic supply change confirmed in 9 seconds
+mosaic supply change confirmed in 9 seconds
 
 --- Verifying mosaic ---
 Fetching mosaic information from /mosaics/736FEC06ED1DAA73

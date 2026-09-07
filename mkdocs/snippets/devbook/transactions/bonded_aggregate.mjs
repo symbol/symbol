@@ -98,8 +98,8 @@ try {
 	const medianMultiplier = feeJSON.medianFeeMultiplier;
 	const minimumMultiplier = feeJSON.minFeeMultiplier;
 	const feeMultiplier = Math.max(medianMultiplier, minimumMultiplier);
-	console.log('  Fee multiplier:', feeMultiplier);
-	// [<step-2]
+	console.log('  Fee multiplier:', feeMultiplier); // [<step-2]
+
 	// Embedded tx 1: Account A transfers 10 XYM to Account B [>step-3]
 	const embeddedTransaction1 =
 		facade.createEmbeddedTransactionFromTypedDescriptor(
@@ -125,8 +125,8 @@ try {
 						new models.Amount(1n)) // 1 custom mosaic
 				],
 				undefined),
-			accountBKeyPair.publicKey);
-	// [<step-3]
+			accountBKeyPair.publicKey); // [<step-3]
+
 	// Build the bonded aggregate transaction [>step-4]
 	const embeddedTransactions = [
 		embeddedTransaction1, embeddedTransaction2];
@@ -182,15 +182,15 @@ try {
 	);
 	await waitForStatus(hashLockHash, 'confirmed', 'Hash lock');
 	// [<step-6]
-	// Announce bonded aggregate and wait for partial status
-	await announceTransaction( // [>step-7]
+	// Announce bonded aggregate and wait for partial status // [>step-7]
+	await announceTransaction(
 		bondedJsonPayload, '/transactions/partial',
 		'Bonded aggregate transaction'
 	);
 	await waitForStatus(
 		bondedHash, 'partial', 'Bonded aggregate transaction'
-	);
-	// [<step-7]
+	); // [<step-7]
+
 	// --- ACCOUNT B (Cosigner) --- [>step-8]
 	// Retrieves partial transactions waiting for signature
 	const partialPath =
@@ -228,8 +228,8 @@ try {
 	const txData = partialTxJson.transaction;
 	console.log('[Account B] Verifying transaction: ' +
 		`${txData.transactions.length} embedded transactions`
-	);
-	// [<step-9]
+	); // [<step-9]
+
 	// Submit Account B's cosignature using the transaction hash [>step-10]
 	const cosignaturePath = '/transactions/cosignature';
 	console.log('[Account B] Cosigning the bonded aggregate...');
@@ -246,8 +246,8 @@ try {
 	// Announce cosignature
 	await announceTransaction(
 		cosignaturePayload, cosignaturePath, 'cosignature'
-	);
-	// [<step-10]
+	); // [<step-10]
+
 	// Wait for final confirmation [>step-11]
 	await waitForStatus(
 		new Hash256(bondedHash), 'confirmed',

@@ -11,8 +11,21 @@ from websockets import connect
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 WS_URL = NODE_URL.replace('http', 'ws', 1) + '/ws'
 print(f'Using node {NODE_URL}')
-# [>step-1]
-ACCOUNT_A_PRIVATE_KEY = os.getenv(
+
+
+def announce_transaction(payload, endpoint, label):
+	request = urllib.request.Request(
+		f'{NODE_URL}{endpoint}',
+		data=payload.encode(),
+		headers={'Content-Type': 'application/json'},
+		method='PUT'
+	)
+	with urllib.request.urlopen(request) as response:
+		response.read()
+	print(label)
+
+
+ACCOUNT_A_PRIVATE_KEY = os.getenv(  # [>step-1]
 	'ACCOUNT_A_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
 ACCOUNT_B_PRIVATE_KEY = os.getenv(
@@ -127,16 +140,11 @@ async def main():
 			))
 
 		# Announce hash lock
-		request = urllib.request.Request(
-			f'{NODE_URL}/transactions',
-			data=hash_lock_payload.encode(),
-			headers={'Content-Type': 'application/json'},
-			method='PUT'
+		announce_transaction(
+			hash_lock_payload, '/transactions',
+			f'[Account A] Announced hash lock '
+			f'{str(hash_lock_hash)[:16]}...'
 		)
-		with urllib.request.urlopen(request) as resp:
-			resp.read()
-		print('[Account A] Announced hash lock '
-			f'{str(hash_lock_hash)[:16]}...')
 
 		# Wait for hash lock confirmation
 		async for raw_message in websocket:
@@ -185,15 +193,10 @@ async def main():
 			print(f'[Account B] Subscribed to {name} channel')
 # [<step-3]
 		# [Account A] Announce bonded aggregate [>step-4]
-		request = urllib.request.Request(
-			f'{NODE_URL}/transactions/partial',
-			data=bonded_payload.encode(),
-			headers={'Content-Type': 'application/json'},
-			method='PUT'
+		announce_transaction(
+			bonded_payload, '/transactions/partial',
+			f'[Account A] Announced bonded {str(bonded_hash)[:16]}...'
 		)
-		with urllib.request.urlopen(request) as resp:
-			resp.read()
-		print(f'[Account A] Announced bonded {str(bonded_hash)[:16]}...')
 		# [<step-4]
 		# [Account B] Listen for bonded transaction flow [>step-5]
 		async for raw_message in websocket:
@@ -225,17 +228,11 @@ async def main():
 						'signature': str(cosignature.signature),
 						'parentHash': str(cosignature.parent_hash)
 					})
-					cosignature_request = (
-						urllib.request.Request(
-							f'{NODE_URL}/transactions/cosignature',
-							data=(cosignature_payload.encode()),
-							headers={'Content-Type': 'application/json'},
-							method='PUT'))
-					with urllib.request.urlopen(
-						cosignature_request
-					) as resp:
-						resp.read()
-					print('[Account B] Submitted cosignature')
+					announce_transaction(
+						cosignature_payload,
+						'/transactions/cosignature',
+						'[Account B] Submitted cosignature'
+					)
 
 			elif name == 'confirmedAdded':
 				message_hash = message['data']['meta']['hash']

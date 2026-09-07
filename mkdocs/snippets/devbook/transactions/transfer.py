@@ -17,6 +17,41 @@ signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))
 # [<step-1]
 facade = SymbolFacade('testnet')
 
+
+# Helper function to announce a transaction [>step-5]
+def announce_transaction(payload, label):
+	print(f'Announcing {label} to /transactions')
+	request = urllib.request.Request(
+		f'{NODE_URL}/transactions',
+		data=payload.encode(),
+		headers={'Content-Type': 'application/json'},
+		method='PUT'
+	)
+	with urllib.request.urlopen(request) as announce_response:
+		print(f'  Response: {announce_response.read().decode()}')  # [<step-5]
+
+
+# Helper function to wait for transaction confirmation [>step-6]
+def wait_for_confirmation(tx_hash, label):
+	print(f'Waiting for {label} confirmation...')
+	for attempt in range(60):
+		time.sleep(1)
+		try:
+			url = f'{NODE_URL}/transactionStatus/{tx_hash}'
+			with urllib.request.urlopen(url) as confirm_response:
+				status = json.loads(confirm_response.read().decode())
+				print(f'  Transaction status: {status["group"]}')
+				if status['group'] == 'confirmed':
+					print(f'{label} confirmed in {attempt} seconds')
+					return
+				if status['group'] == 'failed':
+					raise RuntimeError(
+						f'{label} failed: {status["code"]}')
+		except urllib.error.HTTPError:
+			print('  Transaction status: unknown')
+	raise TimeoutError(f'{label} not confirmed after 60 seconds')  # [<step-6]
+
+
 try:
 	# Fetch recommended fees [>step-2]
 	fee_path = '/network/fees/transaction'
@@ -51,40 +86,9 @@ try:
 	print('Built transaction:')
 	print(json.dumps(transaction.to_json(), indent=2))
 	# [<step-4]
-	# Announce the transaction [>step-5]
-	announce_path = '/transactions'
-	print(f'Announcing transaction to {announce_path}')
-	announce_request = urllib.request.Request(
-		f'{NODE_URL}{announce_path}',
-		data=json_payload.encode(),
-		headers={'Content-Type': 'application/json'},
-		method='PUT'
-	)
-	with urllib.request.urlopen(announce_request) as response:
-		print(f'  Response: {response.read().decode()}')
-	# [<step-5]
-	# Wait for confirmation [>step-6]
-	status_path = (
-		f'/transactionStatus/{facade.hash_transaction(transaction)}')
-	print(f'Waiting for confirmation from {status_path}')
-	for attempt in range(60):
-		try:
-			with urllib.request.urlopen(
-				f'{NODE_URL}{status_path}'
-			) as response:
-				status = json.loads(response.read().decode())
-				print(f'  Transaction status: {status['group']}')
-				if status['group'] == 'confirmed':
-					print(f'Transaction confirmed in {attempt} seconds')
-					break
-				if status['group'] == 'failed':
-					print(f'Transaction failed: {status['code']}')
-					break
-		except urllib.error.HTTPError as e:
-			print(f'  Transaction status: unknown | Cause: ({e.msg})')
-		time.sleep(1)
-	else:
-		print('Confirmation took too long.')
-	# [<step-6]
+	transaction_hash = facade.hash_transaction(transaction)
+	print(f'Transaction hash: {transaction_hash}')
+	announce_transaction(json_payload, 'transaction')
+	wait_for_confirmation(transaction_hash, 'transaction')
 except urllib.error.URLError as e:
 	print(e.reason)

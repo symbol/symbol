@@ -103,9 +103,9 @@ def announce_transaction(payload, endpoint, label):
 		print(f'  Response: {response.read().decode()}')
 
 
-# Helper function to wait for Symbol transaction status
-def wait_for_status(hash_value, expected_status, label):
-	print(f'Waiting for {label} to reach {expected_status} status...')
+# Helper function to wait for Symbol transaction confirmation
+def wait_for_confirmation(hash_value, label):
+	print(f'Waiting for {label} confirmation...')
 	attempts = 0
 	max_attempts = 60
 
@@ -120,9 +120,8 @@ def wait_for_status(hash_value, expected_status, label):
 					raise RuntimeError(
 						f'{label} failed: {status["code"]}')
 
-				if status['group'] == expected_status:
-					print(f'{label} {expected_status}'
-						f' in {attempts} seconds')
+				if status['group'] == 'confirmed':
+					print(f'{label} confirmed in {attempts} seconds')
 					return
 
 		except urllib.error.HTTPError as err:
@@ -134,7 +133,7 @@ def wait_for_status(hash_value, expected_status, label):
 		time.sleep(1)
 
 	raise TimeoutError(
-		f'{label} not {expected_status} after {max_attempts} attempts')
+		f'{label} not confirmed after {max_attempts} attempts')
 
 
 # Poll Symbol for a confirmed secret proof transaction matching
@@ -166,6 +165,7 @@ def wait_for_secret_proof(signer_address, hlock):
 # Symbol accounts [>step-1]
 facade = SymbolFacade('testnet')
 
+# Alice (creates the ETH lock, claims XYM on Symbol)
 ALICE_XYM_PRIVATE_KEY = os.getenv('ALICE_XYM_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
 alice_xym_key_pair = SymbolFacade.KeyPair(
@@ -174,6 +174,7 @@ alice_xym_address = facade.network.public_key_to_address(
 	alice_xym_key_pair.public_key)
 print(f'Alice Symbol address: {alice_xym_address}')
 
+# Bob (creates the XYM lock, claims ETH on Ethereum)
 BOB_XYM_PRIVATE_KEY = os.getenv('BOB_XYM_PRIVATE_KEY',
 	'1111111111111111111111111111111111111111111111111111111111111111')
 bob_xym_key_pair = SymbolFacade.KeyPair(PrivateKey(BOB_XYM_PRIVATE_KEY))
@@ -271,7 +272,7 @@ try:
 	lock_hash = facade.hash_transaction(secret_lock_transaction)
 	print(f'Secret lock transaction hash: {lock_hash}')
 	announce_transaction(lock_payload, '/transactions', 'secret lock')
-	wait_for_status(lock_hash, 'confirmed', 'Secret lock')
+	wait_for_confirmation(lock_hash, 'Secret lock')
 	# [<step-4]
 	# --- Step 3. Alice: Claim XYM on Symbol ---
 	print('\n--- Step 3. Alice: Claim XYM on Symbol ---')  # [>step-5]
@@ -300,7 +301,7 @@ try:
 	proof_hash = facade.hash_transaction(secret_proof_transaction)
 	print(f'Secret proof transaction hash: {proof_hash}')
 	announce_transaction(proof_payload, '/transactions', 'secret proof')
-	wait_for_status(proof_hash, 'confirmed', 'Secret proof')
+	wait_for_confirmation(proof_hash, 'Secret proof')
 	# [<step-5]
 	# --- Step 4. Bob: Withdraw ETH on Ethereum ---
 	print('\n--- Step 4. Bob: Withdraw ETH on Ethereum ---')  # [>step-6]

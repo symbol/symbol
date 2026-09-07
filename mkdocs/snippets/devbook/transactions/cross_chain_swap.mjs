@@ -60,10 +60,9 @@ async function announceTransaction(payload, endpoint, label) {
 	console.log('  Response:', await response.text());
 }
 
-// Helper function to wait for Symbol transaction status
-async function waitForStatus(hash, expectedStatus, label) {
-	console.log(
-		`Waiting for ${label} to reach ${expectedStatus} status...`);
+// Helper function to wait for Symbol transaction confirmation
+async function waitForConfirmation(hash, label) {
+	console.log(`Waiting for ${label} confirmation...`);
 	let attempts = 0;
 	const maxAttempts = 60;
 
@@ -85,10 +84,8 @@ async function waitForStatus(hash, expectedStatus, label) {
 			if ('failed' === status.group)
 				throw new Error(`${label} failed: ${status.code}`);
 
-			if (status.group === expectedStatus) {
-				console.log(
-					`${label} ${expectedStatus} in ${attempts} seconds`
-				);
+			if ('confirmed' === status.group) {
+				console.log(`${label} confirmed in ${attempts} seconds`);
 				return;
 			}
 		} catch (error) {
@@ -103,7 +100,7 @@ async function waitForStatus(hash, expectedStatus, label) {
 	}
 
 	throw new Error(
-		`${label} not ${expectedStatus} after ${maxAttempts} attempts`);
+		`${label} not confirmed after ${maxAttempts} attempts`);
 }
 
 // Poll Symbol for a confirmed secret proof transaction matching
@@ -173,7 +170,8 @@ console.log('Bob ETH address:', bobEthWallet.address);
 // [<step-1]
 try {
 	// --- Alice: Generate proof and hashlock ---
-	console.log('\n--- Alice: Generate proof and hashlock ---'); // [>step-2]
+	// [>step-2]
+	console.log('\n--- Alice: Generate proof and hashlock ---');
 
 	const proof = randomBytes(32);
 	console.log('Proof (hex):', proof.toString('hex'));
@@ -183,7 +181,8 @@ try {
 	console.log('Secret (double SHA-256):', secret.toString('hex'));
 	// [<step-2]
 	// --- Step 1. Alice: Lock ETH on Ethereum ---
-	console.log('\n--- Step 1. Alice: Lock ETH on Ethereum ---'); // [>step-3]
+	// [>step-3]
+	console.log('\n--- Step 1. Alice: Lock ETH on Ethereum ---');
 
 	const htlcAsAlice = new ethers.Contract(
 		HTLC_ADDRESS, HTLC_ABI, aliceEthWallet);
@@ -250,10 +249,11 @@ try {
 	console.log('Secret lock transaction hash:', lockHash);
 	await announceTransaction(lockPayload, '/transactions',
 		'secret lock');
-	await waitForStatus(lockHash, 'confirmed', 'Secret lock');
+	await waitForConfirmation(lockHash, 'Secret lock');
 	// [<step-4]
 	// --- Step 3. Alice: Claim XYM on Symbol ---
-	console.log('\n--- Step 3. Alice: Claim XYM on Symbol ---'); // [>step-5]
+	// [>step-5]
+	console.log('\n--- Step 3. Alice: Claim XYM on Symbol ---');
 
 	const secretProofTransaction =
 		facade.createTransactionFromTypedDescriptor(
@@ -282,10 +282,11 @@ try {
 	console.log('Secret proof transaction hash:', proofHash);
 	await announceTransaction(
 		proofPayload, '/transactions', 'secret proof');
-	await waitForStatus(proofHash, 'confirmed', 'Secret proof');
+	await waitForConfirmation(proofHash, 'Secret proof');
 	// [<step-5]
 	// --- Step 4. Bob: Withdraw ETH on Ethereum ---
-	console.log('\n--- Step 4. Bob: Withdraw ETH on Ethereum ---'); // [>step-6]
+	// [>step-6]
+	console.log('\n--- Step 4. Bob: Withdraw ETH on Ethereum ---');
 
 	// Bob waits for Alice to reveal the proof on Symbol.
 	const revealedProof = await waitForSecretProof(

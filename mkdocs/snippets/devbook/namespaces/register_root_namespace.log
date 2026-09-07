@@ -24,7 +24,7 @@ Waiting for namespace registration confirmation...
   Transaction status: unconfirmed
   Transaction status: unconfirmed
   Transaction status: confirmed
-Namespace registration confirmed in 11 seconds
+namespace registration confirmed in 11 seconds
 Namespace ID: 10704093651797406551 (0x948C9476ADE5F357)
 Fetching namespace information from /namespaces/948C9476ADE5F357
 Namespace information:

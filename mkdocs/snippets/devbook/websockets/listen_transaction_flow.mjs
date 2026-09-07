@@ -8,6 +8,16 @@ const NODE_URL = process.env.NODE_URL ||
 	'https://reference.symboltest.net:3001';
 const WS_URL = `${NODE_URL.replace('http', 'ws')}/ws`;
 console.log(`Using node ${NODE_URL}`);
+
+async function announceTransaction(payload, endpoint, label) {
+	await fetch(`${NODE_URL}${endpoint}`, {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		body: payload
+	});
+	console.log(label);
+}
+
 // [>step-1]
 const MONITOR_ADDRESS = process.env.MONITOR_ADDRESS ||
 	'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I';
@@ -82,14 +92,9 @@ try {
 			}
 		});
 	});
-	await fetch(`${NODE_URL}/transactions`, {
-		method: 'PUT',
-		headers: { 'Content-Type': 'application/json' },
-		body: jsonPayload
-	});
-	console.log(
-		'Announced transaction ' +
-		`${transactionHash.substring(0, 16)}...`);
+	await announceTransaction(
+		jsonPayload, '/transactions',
+		`Announced transaction ${transactionHash.substring(0, 16)}...`);
 
 	// Wait for confirmation via WebSocket
 	await confirmed;

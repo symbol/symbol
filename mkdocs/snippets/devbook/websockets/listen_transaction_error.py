@@ -12,16 +12,28 @@ from websockets import connect
 NODE_URL = os.getenv('NODE_URL', 'https://reference.symboltest.net:3001')
 WS_URL = NODE_URL.replace('http', 'ws', 1) + '/ws'
 print(f'Using node {NODE_URL}')
-# [>step-1]
-MONITOR_ADDRESS = os.getenv('MONITOR_ADDRESS',
+
+
+def announce_transaction(payload, endpoint, label):
+	announce_request = urllib.request.Request(
+		f'{NODE_URL}{endpoint}',
+		data=payload.encode(),
+		headers={'Content-Type': 'application/json'},
+		method='PUT'
+	)
+	with urllib.request.urlopen(announce_request) as response:
+		response.read()
+	print(label)
+
+
+MONITOR_ADDRESS = os.getenv('MONITOR_ADDRESS',  # [>step-1]
 	'TCHBDENCLKEBILBPWP3JPB2XNY64OE7PYHHE32I')
 print(f'Monitoring address: {MONITOR_ADDRESS}')
 
 SIGNER_PRIVATE_KEY = os.getenv('SIGNER_PRIVATE_KEY',
 	'0000000000000000000000000000000000000000000000000000000000000000')
 facade = SymbolFacade('testnet')
-signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))
-# [<step-1]
+signer_key_pair = SymbolFacade.KeyPair(PrivateKey(SIGNER_PRIVATE_KEY))  # [<step-1]
 
 
 async def main():
@@ -29,15 +41,15 @@ async def main():
 		# Connect to WebSocket
 		response = json.loads(await websocket.recv())
 		uid = response['uid']
-		print(f'Connected to {WS_URL} with uid {uid}')
-	# [<step-2]
+		print(f'Connected to {WS_URL} with uid {uid}')  # [<step-2]
+
 		# Subscribe to status channel [>step-3]
 		channel = f'status/{MONITOR_ADDRESS}'
 		await websocket.send(json.dumps(
 			{'uid': uid, 'subscribe': channel}
 		))
-		print('Subscribed to status channel')
-		# [<step-3]
+		print('Subscribed to status channel')  # [<step-3]
+
 		# Build a transfer transaction with a non-existent mosaic [>step-4]
 		with urllib.request.urlopen(
 			f'{NODE_URL}/network/fees/transaction'
@@ -52,7 +64,8 @@ async def main():
 				'type': 'transfer_transaction_v1',
 				'recipient_address': Address(MONITOR_ADDRESS),
 				'mosaics': [{
-					'mosaic_id': generate_mosaic_alias_id('symbol.unknown'),
+					'mosaic_id': generate_mosaic_alias_id(
+						'symbol.unknown'),
 					'amount': 1
 				}]
 			},
@@ -63,17 +76,13 @@ async def main():
 		signature = facade.sign_transaction(signer_key_pair, transaction)
 		json_payload = facade.transaction_factory.attach_signature(
 			transaction, signature)
-		transaction_hash = str(facade.hash_transaction(transaction))  # [<step-4]
+		transaction_hash = str(facade.hash_transaction(transaction))
+		# [<step-4]
 		# [>step-5]
-		announce_request = urllib.request.Request(
-			f'{NODE_URL}/transactions',
-			data=json_payload.encode(),
-			headers={'Content-Type': 'application/json'},
-			method='PUT'
+		announce_transaction(
+			json_payload, '/transactions',
+			f'Announced transaction {transaction_hash[:16]}...'
 		)
-		with urllib.request.urlopen(announce_request) as resp:
-			resp.read()
-		print(f'Announced transaction {transaction_hash[:16]}...')
 
 		# Wait for error via WebSocket
 		async for raw_message in websocket:
@@ -92,8 +101,7 @@ async def main():
 		await websocket.send(json.dumps(
 			{'uid': uid, 'unsubscribe': channel}
 		))
-		print('Unsubscribed from status channel')
-		# [<step-6]
+		print('Unsubscribed from status channel')  # [<step-6]
 
 try:
 	asyncio.run(main())

@@ -17,6 +17,45 @@ const signerKeyPair = new SymbolFacade.KeyPair(
 // [<step-1]
 const facade = new SymbolFacade('testnet');
 
+// Helper function to announce a transaction [>step-5]
+async function announceTransaction(payload, label) {
+	console.log(`Announcing ${label} to /transactions`);
+	const response = await fetch(`${NODE_URL}/transactions`, {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		body: payload
+	});
+	console.log('  Response:', await response.text());
+}
+// [<step-5]
+
+// Helper function to wait for transaction confirmation [>step-6]
+async function waitForConfirmation(transactionHash, label) {
+	console.log(`Waiting for ${label} confirmation...`);
+	for (let attempt = 0; 60 > attempt; attempt++) {
+		await new Promise(resolve => { setTimeout(resolve, 1000); });
+		const response = await fetch(
+			`${NODE_URL}/transactionStatus/${transactionHash}`);
+		if (!response.ok) {
+			if (404 === response.status) {
+				console.log('  Transaction status: unknown');
+				continue;
+			}
+			throw new Error(`HTTP ${response.status}`);
+		}
+		const status = await response.json();
+		console.log('  Transaction status:', status.group);
+		if ('confirmed' === status.group) {
+			console.log(`${label} confirmed in`, attempt, 'seconds');
+			return;
+		}
+		if ('failed' === status.group)
+			throw new Error(`${label} failed: ${status.code}`);
+	}
+	throw new Error(`${label} not confirmed after 60 seconds`);
+}
+// [<step-6]
+
 try {
 	// Fetch recommended fees [>step-2]
 	const feePath = '/network/fees/transaction';
@@ -49,46 +88,11 @@ try {
 	console.log('Built transaction:');
 	console.dir(transaction.toJson(), { colors: true });
 	// [<step-4]
-	// Announce the transaction [>step-5]
-	const announcePath = '/transactions';
-	console.log('Announcing transaction to', announcePath);
-	const announceResponse = await fetch(`${NODE_URL}${announcePath}`, {
-		method: 'PUT',
-		headers: { 'Content-Type': 'application/json' },
-		body: jsonPayload
-	});
-	console.log('  Response:', await announceResponse.text());
-	// [<step-5]
-	// Wait for confirmation [>step-6]
 	const transactionHash =
 		facade.hashTransaction(transaction).toString();
-	const statusPath = `/transactionStatus/${transactionHash}`;
-	console.log('Waiting for confirmation from', statusPath);
-
-	for (let attempt = 1; 60 >= attempt; ++attempt) {
-		const response = await fetch(`${NODE_URL}${statusPath}`);
-
-		if (response.ok) {
-			const status = await response.json();
-			console.log('  Transaction status:', status.group);
-			if ('confirmed' === status.group) {
-				console.log('Transaction confirmed in', attempt,
-					'seconds');
-				break;
-			}
-			if ('failed' === status.group) {
-				console.log('Transaction failed:', status.code);
-				break;
-			}
-		} else {
-			console.log('  Transaction status: unknown | Cause:',
-				response.status
-			);
-		}
-		await new Promise(resolve => { setTimeout(resolve, 1000); });
-		if (60 === attempt)
-			console.warn('Confirmation took too long.');
-	} // [<step-6]
+	console.log('Transaction hash:', transactionHash);
+	await announceTransaction(jsonPayload, 'transaction');
+	await waitForConfirmation(transactionHash, 'transaction');
 } catch (e) {
 	console.error(e.message, '| Cause:', e.cause?.code ?? 'unknown');
 }

@@ -1,5 +1,8 @@
-# Doxygen temporary folder
+.gradle
 .doxy
+
+# Gradle cache
+.gradle
 
 # Re-include this folder, excluded by the previous .gitignore
 !ts
