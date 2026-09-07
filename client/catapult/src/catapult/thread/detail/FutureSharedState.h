@@ -22,6 +22,7 @@
 #pragma once
 #include "catapult/utils/NonCopyable.h"
 #include "catapult/functions.h"
+#include <atomic>
 #include <future>
 #include <memory>
 #include <mutex>

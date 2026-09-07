@@ -5,5 +5,6 @@ set(TARGET_NAME catapult.tools.plugins)
 catapult_library_target(${TARGET_NAME})
 target_link_libraries(${TARGET_NAME} catapult.plugins)
 
-# tool has plugins dependency so it must be able to access src
-include_directories(${PROJECT_SOURCE_DIR}/src)
+# library has plugins dependency so it must build against src (not the published sdk headers, which do not include it);
+# its public headers only include published headers, so tools can still consume it while building against the sdk
+target_include_directories(${TARGET_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)

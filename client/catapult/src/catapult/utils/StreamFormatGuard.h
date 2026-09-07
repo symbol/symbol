@@ -22,6 +22,7 @@
 #pragma once
 #include "NonCopyable.h"
 #include <iomanip>
+#include <ostream>
 
 namespace catapult { namespace utils {
 

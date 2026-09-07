@@ -22,6 +22,7 @@
 #pragma once
 #include "detail/FutureSharedState.h"
 #include "catapult/utils/NonCopyable.h"
+#include <atomic>
 
 namespace catapult { namespace thread {
 
