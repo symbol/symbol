@@ -55,6 +55,10 @@ class BuildEnvironment:
 		for key, value in settings.items():
 			setting_overrides += ['-s', f'compiler.{key}={value}']
 		self.dispatch_subprocess(['conan', 'profile', 'show', '--profile', 'default'])
+
+		if self.is_clang and self.compiler.version >= 23:
+			setting_overrides += ['-c', 'tools.build:cxxflags=\'["-include", "iterator", "-include", "new"]\'']
+
 		conan_install_rc = self.dispatch_subprocess([
 			'conan', 'install', source_path,
 			'--build', 'missing',
@@ -197,7 +201,7 @@ class BuildManager(BasicBuildManager):
 		for dependency_pattern in self.compiler.deps:
 			directory_path = os.path.dirname(dependency_pattern)
 			pattern = os.path.basename(dependency_pattern)
-			self.environment_manager.copy_glob_with_symlinks(directory_path, pattern, destination, self.compiler.c.startswith('clang'))
+			self.environment_manager.copy_glob_with_symlinks(directory_path, pattern, destination, self.is_clang)
 
 	def copy_files(self, output_path):
 		deps_output_path = Path(f'{output_path}/deps').resolve()
