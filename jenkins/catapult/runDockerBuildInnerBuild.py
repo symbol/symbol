@@ -57,7 +57,7 @@ class BuildEnvironment:
 		self.dispatch_subprocess(['conan', 'profile', 'show', '--profile', 'default'])
 
 		if cxxflags:
-			setting_overrides += ['-c', f'tools.build:cxxflags=\'{cxxflags}\'']
+			setting_overrides += ['-c', f'tools.build:cxxflags={cxxflags}']
 
 		conan_install_rc = self.dispatch_subprocess([
 			'conan', 'install', source_path,
@@ -252,7 +252,7 @@ def main():
 	cmake_preset = []
 	if builder.use_conan:
 		env.prepare_conan()
-		cxxflags = r'["-include", "iterator", "-include", "new"]' if builder.is_clang and builder.compiler.version >= 23 else None
+		cxxflags = '["-include", "iterator", "-include", "new"]' if builder.is_clang and builder.compiler.version >= 23 else None
 		env.run_conan_install(args.source_path, conan_options, build_path, args.build_type, cxxflags)
 		environment_manager.chdir(f'{build_path}/build' if environment_manager.is_windows_platform() else f'{build_path}/build/{args.build_type}')
 		conan_preset_name = 'conan-default' if environment_manager.is_windows_platform() else f'conan-{args.build_type.lower()}'
