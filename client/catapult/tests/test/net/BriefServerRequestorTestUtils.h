@@ -25,6 +25,7 @@
 #include "catapult/net/ConnectionSettings.h"
 #include "catapult/net/NodeRequestResult.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
+#include <atomic>
 
 namespace catapult { namespace test {
 
@@ -208,17 +209,17 @@ namespace catapult { namespace test {
 
 	private:
 		std::shared_ptr<ionet::PacketSocket> serverSocket() const {
-			return std::atomic_load(&m_pServerSocket);
+			return m_pServerSocket.load();
 		}
 
 		void setServerSocket(const std::shared_ptr<ionet::PacketSocket>& pServerSocket) {
-			std::atomic_store(&m_pServerSocket, pServerSocket);
+			m_pServerSocket.store(pServerSocket);
 		}
 
 	private:
 		test::TcpAcceptor m_acceptor;
 
-		std::shared_ptr<ionet::PacketSocket> m_pServerSocket;
+		std::atomic<std::shared_ptr<ionet::PacketSocket>> m_pServerSocket;
 	};
 
 	// endregion

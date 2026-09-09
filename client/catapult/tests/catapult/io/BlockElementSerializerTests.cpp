@@ -55,9 +55,7 @@ namespace catapult { namespace io {
 				hashOffset += 2;
 			}
 
-			context.pBlockElement->SubCacheMerkleRoots = std::vector<Hash256>(
-					&context.Hashes[hashOffset],
-					&context.Hashes[context.Hashes.size()]);
+			context.pBlockElement->SubCacheMerkleRoots = std::vector<Hash256>(context.Hashes.cbegin() + hashOffset, context.Hashes.cend());
 			return context;
 		}
 
@@ -180,18 +178,19 @@ namespace catapult { namespace io {
 			std::copy(context.Hashes[1].cbegin(), context.Hashes[1].cend(), context.GenerationHash.begin());
 
 			const auto* pNextHash = context.Hashes.data();
-			std::memcpy(&context.Buffer[0], context.pBlock.get(), context.pBlock->Size);
-			std::memcpy(&context.Buffer[context.pBlock->Size], pNextHash, 2 * Hash256::Size);
+			auto* pBuffer = context.Buffer.data();
+			std::memcpy(pBuffer, context.pBlock.get(), context.pBlock->Size);
+			std::memcpy(pBuffer + context.pBlock->Size, pNextHash, 2 * Hash256::Size);
 
 			auto offset = context.pBlock->Size + 2 * Hash256::Size;
 			pNextHash += 2;
-			std::memcpy(&context.Buffer[offset], &numTransactions, sizeof(uint32_t));
-			std::memcpy(&context.Buffer[offset + sizeof(uint32_t)], pNextHash, 2 * numTransactions * Hash256::Size);
+			std::memcpy(pBuffer + offset, &numTransactions, sizeof(uint32_t));
+			std::memcpy(pBuffer + offset + sizeof(uint32_t), pNextHash, 2 * numTransactions * Hash256::Size);
 
 			offset += sizeof(uint32_t) + 2 * numTransactions * Hash256::Size;
 			pNextHash += 2 * numTransactions;
-			std::memcpy(&context.Buffer[offset], &numSubCacheMerkleRoots, sizeof(uint32_t));
-			std::memcpy(&context.Buffer[offset + sizeof(uint32_t)], pNextHash, numSubCacheMerkleRoots * Hash256::Size);
+			std::memcpy(pBuffer + offset, &numSubCacheMerkleRoots, sizeof(uint32_t));
+			std::memcpy(pBuffer + offset + sizeof(uint32_t), pNextHash, numSubCacheMerkleRoots * Hash256::Size);
 			return context;
 		}
 
@@ -270,7 +269,7 @@ namespace catapult { namespace io {
 		EXPECT_EQ(context.GenerationHash, pBlockElement->GenerationHash);
 
 		ASSERT_EQ(4u, pBlockElement->SubCacheMerkleRoots.size());
-		EXPECT_EQ(std::vector<Hash256>(&context.Hashes[2], &context.Hashes[6]), pBlockElement->SubCacheMerkleRoots);
+		EXPECT_EQ(std::vector<Hash256>(context.Hashes.cbegin() + 2, context.Hashes.cend()), pBlockElement->SubCacheMerkleRoots);
 		EXPECT_TRUE(pBlockElement->Transactions.empty());
 		EXPECT_FALSE(!!pBlockElement->OptionalStatement);
 	}
@@ -292,7 +291,7 @@ namespace catapult { namespace io {
 		EXPECT_EQ(context.GenerationHash, pBlockElement->GenerationHash);
 
 		ASSERT_EQ(4u, pBlockElement->SubCacheMerkleRoots.size());
-		EXPECT_EQ(std::vector<Hash256>(&context.Hashes[8], &context.Hashes[12]), pBlockElement->SubCacheMerkleRoots);
+		EXPECT_EQ(std::vector<Hash256>(context.Hashes.cbegin() + 8, context.Hashes.cend()), pBlockElement->SubCacheMerkleRoots);
 		ASSERT_EQ(3u, pBlockElement->Transactions.size());
 		AssertReadTransactions(context, *pBlockElement);
 		EXPECT_FALSE(!!pBlockElement->OptionalStatement);
