@@ -219,7 +219,7 @@ namespace catapult { namespace extensions {
 				},
 				[](const std::error_code& innerEc) { return std::errc::permission_denied == innerEc; },
 				Num_Rename_Attempts,
-				[&from, &to](uint32_t attempt, const std::error_code& innerEc, uint32_t delayMs) {
+				[&from, &to, Num_Rename_Attempts](uint32_t attempt, const std::error_code& innerEc, uint32_t delayMs) {
 					CATAPULT_LOG(warning)
 							<< "renaming '" << from << "' to '" << to << "' failed (attempt " << (attempt + 1) << "/"
 							<< Num_Rename_Attempts << "): " << innerEc.message() << ", retrying in " << delayMs << "ms";
