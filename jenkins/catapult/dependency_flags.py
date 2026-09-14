@@ -19,7 +19,6 @@ DEPENDENCY_FLAGS = {
 		'-DENABLE_EXAMPLES=OFF',
 		'-DENABLE_SASL=OFF'
 	],
-	'mongodb_mongo-cxx-driver': ['-DCMAKE_CXX_STANDARD=17'],
 
 	'zeromq_libzmq': ['-DWITH_TLS=OFF'],
 	'zeromq_cppzmq': ['-DCPPZMQ_BUILD_TESTS=OFF'],
@@ -50,6 +49,7 @@ def get_dependency_flags(dependency_name):
 	if EnvironmentManager.is_windows_platform():
 		flags += WINDOWS_DEPENDENCY_FLAGS.get(dependency_name, [])
 
+	flags.extend(['cxxflags=--std=c++20'] if 'boost' == dependency_name else ['-DCMAKE_CXX_STANDARD=20', '-DCMAKE_CXX_STANDARD_REQUIRED=ON'])
 	return flags
 
 
