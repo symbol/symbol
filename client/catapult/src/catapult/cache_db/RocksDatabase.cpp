@@ -189,7 +189,14 @@ namespace catapult { namespace cache {
 				},
 				IsRetryableAfterFailedOpen,
 				Num_Open_Attempts,
-				[Num_Open_Attempts](uint32_t attempt, const rocksdb::Status& openStatus, uint32_t delayMs) {
+				// Num_Open_Attempts is constexpr, so gcc/clang allow using it inside without capturing it (and clang's
+				// -Wunused-lambda-capture flags an explicit capture as unnecessary); MSVC still requires the capture.
+#if defined(_MSC_VER)
+				[Num_Open_Attempts]
+#else
+				[]
+#endif
+				(uint32_t attempt, const rocksdb::Status& openStatus, uint32_t delayMs) {
 					CATAPULT_LOG(warning)
 							<< "RocksDB open failed (attempt " << (attempt + 1) << "/" << Num_Open_Attempts << "): "
 							<< openStatus.ToString() << ", retrying in " << delayMs << "ms";

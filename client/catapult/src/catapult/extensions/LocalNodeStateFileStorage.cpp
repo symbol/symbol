@@ -219,7 +219,14 @@ namespace catapult { namespace extensions {
 				},
 				[](const std::error_code& innerEc) { return std::errc::permission_denied == innerEc; },
 				Num_Rename_Attempts,
-				[&from, &to, Num_Rename_Attempts](uint32_t attempt, const std::error_code& innerEc, uint32_t delayMs) {
+				// Num_Rename_Attempts is constexpr, so gcc/clang allow using it inside without capturing it (and clang's
+				// -Wunused-lambda-capture flags an explicit capture as unnecessary); MSVC still requires the capture.
+#if defined(_MSC_VER)
+				[&from, &to, Num_Rename_Attempts]
+#else
+				[&from, &to]
+#endif
+				(uint32_t attempt, const std::error_code& innerEc, uint32_t delayMs) {
 					CATAPULT_LOG(warning)
 							<< "renaming '" << from << "' to '" << to << "' failed (attempt " << (attempt + 1) << "/"
 							<< Num_Rename_Attempts << "): " << innerEc.message() << ", retrying in " << delayMs << "ms";
