@@ -55,12 +55,7 @@ namespace catapult { namespace model {
 				0x33, 0x03, 0x00, 0x00
 			};
 
-			if (!receiptsData.empty()) {
-				auto headerSize = allData.size();
-				allData.resize(headerSize + receiptsData.size());
-				std::memcpy(&allData[headerSize], &receiptsData[0], receiptsData.size());
-			}
-
+			allData.insert(allData.end(), receiptsData.cbegin(), receiptsData.cend());
 			return allData;
 		}
 	}

@@ -25,6 +25,7 @@
 #include "catapult/net/ConnectionSettings.h"
 #include "catapult/net/NodeRequestResult.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
+#include <mutex>
 
 namespace catapult { namespace test {
 
@@ -208,16 +209,20 @@ namespace catapult { namespace test {
 
 	private:
 		std::shared_ptr<ionet::PacketSocket> serverSocket() const {
-			return std::atomic_load(&m_pServerSocket);
+			std::lock_guard<std::mutex> guard(m_serverSocketMutex);
+			return m_pServerSocket;
 		}
 
 		void setServerSocket(const std::shared_ptr<ionet::PacketSocket>& pServerSocket) {
-			std::atomic_store(&m_pServerSocket, pServerSocket);
+			std::lock_guard<std::mutex> guard(m_serverSocketMutex);
+			m_pServerSocket = pServerSocket;
 		}
 
 	private:
 		test::TcpAcceptor m_acceptor;
 
+		// std::atomic<std::shared_ptr> is not implemented by libc++, so guard it with a mutex instead
+		mutable std::mutex m_serverSocketMutex;
 		std::shared_ptr<ionet::PacketSocket> m_pServerSocket;
 	};
 

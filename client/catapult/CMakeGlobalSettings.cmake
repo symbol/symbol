@@ -355,7 +355,10 @@ endif()
 
 # sets cxx std version
 function(catapult_set_cxx_std_version TARGET_NAME)
-	set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 17)
+	set_target_properties(${TARGET_NAME} PROPERTIES
+		CXX_STANDARD 20
+		CXX_STANDARD_REQUIRED ON
+	)
 	if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" AND "${CMAKE_CXX_COMPILER_VERSION}" MATCHES "^8.")
 		target_link_libraries(${TARGET_NAME} "stdc++fs")
 	endif()

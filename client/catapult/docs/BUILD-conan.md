@@ -89,13 +89,13 @@ cd symbol/client/catapult
 
 ### Linux and Macos
 ```sh
-conan install . --build=missing -s build_type=Release
+conan install . --build=missing -s compiler.cppstd=20 -s build_type=Release
 cd build/Release
 ```
 
 ### Windows
 ```sh
-conan install . --build=missing -s compiler.cppstd=17 -s build_type=Release
+conan install . --build=missing -s compiler.cppstd=20 -s build_type=Release
 cd build
 ```
 _where `build_type` argument value can be any of Release, RelWithDebInfo, Debug_

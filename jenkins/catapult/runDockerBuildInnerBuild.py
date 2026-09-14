@@ -241,9 +241,7 @@ def main():
 	environment_manager = EnvironmentManager(args.dry_run)
 
 	builder = BuildManager(args, process_manager, environment_manager, args.build_type)
-	conan_options = {'version': builder.compiler.version, 'libcxx': builder.stl.lib}
-	if builder.is_msvc:
-		conan_options = {'cppstd': 17}
+	conan_options = {'version': builder.compiler.version, 'libcxx': builder.stl.lib, 'cppstd': 20}
 
 	env = BuildEnvironment(builder.use_conan, process_manager, environment_manager)
 	build_path = f'{args.source_path}/_build' if builder.enable_code_coverage else '/tmp/_build'

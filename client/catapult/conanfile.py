@@ -10,15 +10,15 @@ class CatapultConan(ConanFile):
 
 	def requirements(self):
 		self.requires("boost/1.91.0", run=True)
-		self.requires("openssl/3.6.2", run=True)
+		self.requires("openssl/4.0.2", run=True)
 		self.requires("cppzmq/4.11.0@nemtech/stable", run=True)
-		self.requires("mongo-c-driver/2.2.1@nemtech/stable", run=True)
-		self.requires("mongo-cxx-driver/4.1.4@nemtech/stable", run=True)
-		self.requires("rocksdb/10.6.2@nemtech/stable", run=True)
+		self.requires("mongo-c-driver/2.5.3@nemtech/stable", run=True)
+		self.requires("mongo-cxx-driver/4.5.3@nemtech/stable", run=True)
+		self.requires("rocksdb/11.8.1@nemtech/stable", run=True)
 
 	def build_requirements(self):
 		# pylint: disable=not-callable
-		self.test_requires("gtest/1.17.0")
+		self.test_requires("gtest/1.18.0")
 		self.test_requires("benchmark/1.9.5@nemtech/stable")
 
 	def layout(self):
@@ -37,6 +37,7 @@ class CatapultConan(ConanFile):
 
 		self.options["boost*"].without_atomic = False
 		self.options["boost*"].without_chrono = False
+		self.options["boost*"].without_cobalt = True
 		self.options["boost*"].without_container = False
 		self.options["boost*"].without_context = True
 		self.options["boost*"].without_contract = True
