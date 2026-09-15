@@ -244,7 +244,7 @@ def main():
 	conan_compiler_version = builder.conan.compiler_version if builder.conan else builder.compiler.version
 	conan_options = {'cppstd': 20}
 	if not builder.is_msvc:
-		conan_options += {'version': conan_compiler_version, 'libcxx': builder.stl.lib}
+		conan_options.update({'version': conan_compiler_version, 'libcxx': builder.stl.lib})
 
 	env = BuildEnvironment(builder.use_conan, process_manager, environment_manager)
 	build_path = f'{args.source_path}/_build' if builder.enable_code_coverage else '/tmp/_build'
