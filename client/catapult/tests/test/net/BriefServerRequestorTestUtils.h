@@ -25,7 +25,12 @@
 #include "catapult/net/ConnectionSettings.h"
 #include "catapult/net/NodeRequestResult.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
+#ifdef __clang__
+// std::atomic<std::shared_ptr> is not implemented by libc++, so this uses a mutex instead (see below)
 #include <mutex>
+#else
+#include <atomic>
+#endif
 
 namespace catapult { namespace test {
 
@@ -209,21 +214,42 @@ namespace catapult { namespace test {
 
 	private:
 		std::shared_ptr<ionet::PacketSocket> serverSocket() const {
-			std::lock_guard<std::mutex> guard(m_serverSocketMutex);
-			return m_pServerSocket;
+			return m_pServerSocket.load();
 		}
 
 		void setServerSocket(const std::shared_ptr<ionet::PacketSocket>& pServerSocket) {
-			std::lock_guard<std::mutex> guard(m_serverSocketMutex);
-			m_pServerSocket = pServerSocket;
+			m_pServerSocket.store(pServerSocket);
 		}
 
 	private:
-		test::TcpAcceptor m_acceptor;
+#ifdef __clang__
+		// std::atomic<std::shared_ptr> is not implemented by libc++, so this wraps a mutex-guarded shared_ptr behind
+		// the same load() / store() interface as std::atomic, so serverSocket() / setServerSocket() don't need to care.
+		class MutexGuardedSocket {
+		public:
+			std::shared_ptr<ionet::PacketSocket> load() const {
+				std::lock_guard<std::mutex> guard(m_mutex);
+				return m_pValue;
+			}
 
-		// std::atomic<std::shared_ptr> is not implemented by libc++, so guard it with a mutex instead
-		mutable std::mutex m_serverSocketMutex;
-		std::shared_ptr<ionet::PacketSocket> m_pServerSocket;
+			void store(const std::shared_ptr<ionet::PacketSocket>& pValue) {
+				std::lock_guard<std::mutex> guard(m_mutex);
+				m_pValue = pValue;
+			}
+
+		private:
+			mutable std::mutex m_mutex;
+			std::shared_ptr<ionet::PacketSocket> m_pValue;
+		};
+
+		using ServerSocketHolder = MutexGuardedSocket;
+#else
+		using ServerSocketHolder = std::atomic<std::shared_ptr<ionet::PacketSocket>>;
+#endif
+
+	private:
+		test::TcpAcceptor m_acceptor;
+		ServerSocketHolder m_pServerSocket;
 	};
 
 	// endregion
