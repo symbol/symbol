@@ -2,6 +2,8 @@ from configuration import load_build_configuration, load_compiler_configuration
 
 
 class BasicBuildManager:
+	# pylint: disable=too-many-instance-attributes
+
 	def __init__(self, compiler_configuration_filepath, build_configuration_filepath):
 		compiler_configuration = load_compiler_configuration(compiler_configuration_filepath)
 		build_configuration = load_build_configuration(build_configuration_filepath)
@@ -11,6 +13,7 @@ class BasicBuildManager:
 		self.sanitizers = compiler_configuration.sanitizers
 		self.architecture = compiler_configuration.architecture
 		self.enable_code_coverage = compiler_configuration.enable_code_coverage
+		self.conan = compiler_configuration.conan
 
 		self.build_disposition = build_configuration.disposition
 		self.use_conan = build_configuration.use_conan

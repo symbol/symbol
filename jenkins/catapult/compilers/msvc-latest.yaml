@@ -7,3 +7,6 @@ stl:
   lib: ''
 
 deps: []
+
+conan:
+  compiler_version: 194

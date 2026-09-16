@@ -37,6 +37,7 @@ class CatapultConan(ConanFile):
 
 		self.options["boost*"].without_atomic = False
 		self.options["boost*"].without_chrono = False
+		self.options["boost*"].without_cobalt = True
 		self.options["boost*"].without_container = False
 		self.options["boost*"].without_context = True
 		self.options["boost*"].without_contract = True
