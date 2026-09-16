@@ -52,7 +52,7 @@ Before you start, make sure to:
 * Set up your development environment.
     See [Setting Up a Development Environment](../start/setup.md).
 * Create an <account:>: to own the mosaic, either [from code](../accounts/create-from-private-key.md) or
-    [by using a wallet](../../userbook/wallet/create-account.md),
+    [by using a wallet](../../userbook/desktop-wallet/create-account.md),
     or use the provided default account.
 * Create a restrictable <mosaic:> or use the provided default one.
     See [Creating a Mosaic](./create-mosaic.md).

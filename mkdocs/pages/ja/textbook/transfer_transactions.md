@@ -85,6 +85,6 @@ Symbol プロトコルはメッセージのエンコーディング形式を標�
 
     この接頭バイトの分、メッセージの最大長は 1023 バイトになります。
 
-    この慣例は [Symbol デスクトップウォレット](../userbook/wallet/install.md)、
+    この慣例は [Symbol デスクトップウォレット](../userbook/desktop-wallet/install.md)、
     [Symbol Explorer](https://symbol.fyi) など多くのアプリケーションでサポートされていますが、
     Symbol プロトコルそのものの一部ではありません。

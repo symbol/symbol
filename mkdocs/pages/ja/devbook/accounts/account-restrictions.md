@@ -33,7 +33,7 @@ tutorial_level: advanced
 
 * 開発環境をセットアップしていること。
     [開発環境のセットアップ](../start/setup.md) を参照してください。
-* 制限を課すための [アカウント](default: アカウント) を、[コード](./create-from-private-key.md) または [ウォレット](../../userbook/wallet/create-account.md) を使用して作成していること（あるいは提供されているデフォルトアカウントを使用してください）。
+* 制限を課すための [アカウント](default: アカウント) を、[コード](./create-from-private-key.md) または [ウォレット](../../userbook/desktop-wallet/create-account.md) を使用して作成していること（あるいは提供されているデフォルトアカウントを使用してください）。
 * トランザクション手数料を支払うための [XYM](default: XYM) を入手していること。
     [蛇口 (Faucet) からのテストネット通貨の入手](./testnet-faucet.md) を参照してください。
 

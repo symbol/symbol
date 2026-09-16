@@ -213,7 +213,7 @@ It will be moved offline at a later stage.
     Funds are then needed to pay transaction fees, for example when enabling harvesting.
 
     You can also use the `--show-private` parameter to display the private key and
-    [import it into the wallet](../wallet/import-account.md).
+    [import it into the Symbol Desktop Wallet](../desktop-wallet/import-account.md).
     This step allows you to manage the account more conveniently, but it is not required for this guide.
 
     Alternatively, you can use the `openssl` tool directly to show the account's public key:
