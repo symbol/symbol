@@ -56,7 +56,7 @@ namespace catapult { namespace utils { namespace traits {
 	/// value equal to \c true.
 	/// For any other type, value is \c false.
 	template<typename T>
-	struct is_pod : std::integral_constant<bool, std::is_pod_v<T> && !std::is_pointer_v<T>> {};
+	struct is_pod : std::integral_constant<bool, std::is_trivial_v<T> && std::is_standard_layout_v<T> && !std::is_pointer_v<T>> {};
 
 	template<typename X, typename Y>
 	struct is_pod<BaseValue<X, Y>> : std::true_type {};

@@ -1,7 +1,7 @@
 version: '2.4'
 services:
   db:
-    image: mongo:8.0
+    image: mongo:8.0.4  # pin to this build due to https://www.mongodb.com/community/forums/t/mongodb-8-x-and-linux-kernel-6-19/337547/3
     user: {{USER}}
     networks:
       test_net:

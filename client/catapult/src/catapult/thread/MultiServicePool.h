@@ -252,8 +252,7 @@ namespace catapult { namespace thread {
 
 		template<typename T>
 		static void WaitForLastReference(const std::shared_ptr<T>& pVoid) {
-			volatile long useCount;
-			while (1 < (useCount = pVoid.use_count()))
+			while (1 < pVoid.use_count())
 				std::this_thread::yield();
 		}
 

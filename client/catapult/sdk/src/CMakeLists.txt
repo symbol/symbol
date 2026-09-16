@@ -4,6 +4,7 @@ set(TARGET_NAME catapult.sdk)
 
 catapult_library_target(${TARGET_NAME} builders extensions parsers)
 target_link_libraries(${TARGET_NAME}
+	catapult.io
 	catapult.model
 	catapult.state
 	catapult.plugins.aggregate.sdk
