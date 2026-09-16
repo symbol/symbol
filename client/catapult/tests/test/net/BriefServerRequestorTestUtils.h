@@ -25,11 +25,11 @@
 #include "catapult/net/ConnectionSettings.h"
 #include "catapult/net/NodeRequestResult.h"
 #include "tests/test/core/ThreadPoolTestUtils.h"
-#ifdef __clang__
+#ifndef __clang__
+#include <atomic>
+#else
 // std::atomic<std::shared_ptr> is not implemented by libc++, so this uses a mutex instead (see below)
 #include <mutex>
-#else
-#include <atomic>
 #endif
 
 namespace catapult { namespace test {
@@ -224,7 +224,7 @@ namespace catapult { namespace test {
 	private:
 #ifdef __clang__
 		// std::atomic<std::shared_ptr> is not implemented by libc++, so this wraps a mutex-guarded shared_ptr behind
-		// the same load() / store() interface as std::atomic, so serverSocket() / setServerSocket() don't need to care.
+		// the same load() / store() interface as std::atomic, so serverSocket() / setServerSocket() don't need to care
 		class MutexGuardedSocket {
 		public:
 			std::shared_ptr<ionet::PacketSocket> load() const {
