@@ -166,6 +166,8 @@ def prepare_docker_image(process_manager, container_id, prepare_replacements):
 		'docker', 'commit',
 		'--change', f'WORKDIR {USER_HOME}',
 		'--change', f'ENV LD_LIBRARY_PATH="{USER_HOME}/lib:{USER_HOME}/deps"',
+		# OpenSSL 4.x doesn't find ossl-modules/legacy.so
+		'--change', f'ENV OPENSSL_MODULES="{USER_HOME}/deps/ossl-modules"',
 		container_id,
 		destination_image_name
 	])

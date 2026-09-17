@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.23)
 
 message("--- locating mongo dependencies ---")
-find_package(MONGOCXX 4.5.3 EXACT REQUIRED)
+find_package(mongocxx 4.5.3 EXACT REQUIRED)
 find_package(mongoc 2.5.3 EXACT REQUIRED)
 
-message("mongocxx  ver: ${MONGOCXX_VERSION}")
+message("mongocxx  ver: ${mongocxx_VERSION}")
 message("mongoc    ver: ${mongoc_VERSION}")
 get_library_path("MONGOCXX_LIBRARY_PATH" mongo::mongocxx_shared)
 message("mongocxx  lib: ${mongocxx_LIBRARIES}")

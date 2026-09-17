@@ -57,7 +57,8 @@ namespace catapult { namespace test {
 		if (!seeder)
 			return false;
 
-		rocksdb::DB* pDb;
+		// rocksdb 11.x changed DB::Open's out-param from DB** to std::unique_ptr<DB>*
+		std::unique_ptr<rocksdb::DB> pDb;
 		rocksdb::Options dbOptions;
 		dbOptions.create_if_missing = true;
 		dbOptions.create_missing_column_families = true;
@@ -71,7 +72,6 @@ namespace catapult { namespace test {
 
 		std::vector<rocksdb::ColumnFamilyHandle*> handles;
 		auto status = rocksdb::DB::Open(dbOptions, dbDir, columnFamilies, &handles, &pDb);
-		std::unique_ptr<rocksdb::DB> pDbGuard(pDb);
 		std::vector<std::shared_ptr<rocksdb::ColumnFamilyHandle>> handleGuards;
 		for (auto* pHandle : handles) {
 			handleGuards.emplace_back(pHandle, [&db = *pDb](auto* pColumnHandle) {
@@ -79,7 +79,7 @@ namespace catapult { namespace test {
 			});
 		}
 
-		seeder(*pDbGuard, handles);
+		seeder(*pDb, handles);
 		return true;
 	}
 

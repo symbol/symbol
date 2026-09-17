@@ -121,20 +121,23 @@ namespace catapult { namespace tools { namespace ssl {
 				CATAPULT_THROW_RUNTIME_ERROR_1("failed to add text entry", key);
 		}
 
-		bool DeleteEntry(X509_NAME& name) {
-			auto* pEntry = X509_NAME_delete_entry(&name, 0);
-			if (!pEntry)
-				return false;
-
-			X509_NAME_ENTRY_free(pEntry);
-			return true;
-		}
-
 		void SetTextEntries(X509_NAME& name, const std::string& country, const std::string& organization, const std::string& commonName) {
-			while (DeleteEntry(name)) {}
 			AddTextEntry(name, "C", country);
 			AddTextEntry(name, "O", organization);
 			AddTextEntry(name, "CN", commonName);
+		}
+
+		// openssl 4.0 made X509_get_subject_name / X509_get_issuer_name return `const X509_NAME*`, so entries can no longer be
+		// added directly to (or deleted from) a certificate's existing name; build a fresh name and copy it in instead.
+		using NamePointer = std::unique_ptr<X509_NAME, decltype(&X509_NAME_free)>;
+
+		NamePointer CreateNameWithEntries(const std::string& country, const std::string& organization, const std::string& commonName) {
+			NamePointer pName(X509_NAME_new(), X509_NAME_free);
+			if (!pName)
+				throw std::bad_alloc();
+
+			SetTextEntries(*pName, country, organization, commonName);
+			return pName;
 		}
 	}
 
@@ -156,11 +159,15 @@ namespace catapult { namespace tools { namespace ssl {
 	}
 
 	void CertificateBuilder::setSubject(const std::string& country, const std::string& organization, const std::string& commonName) {
-		SetTextEntries(*X509_get_subject_name(get()), country, organization, commonName);
+		auto pName = CreateNameWithEntries(country, organization, commonName);
+		if (!X509_set_subject_name(get(), pName.get()))
+			CATAPULT_THROW_RUNTIME_ERROR("failed to set certificate subject name");
 	}
 
 	void CertificateBuilder::setIssuer(const std::string& country, const std::string& organization, const std::string& commonName) {
-		SetTextEntries(*X509_get_issuer_name(get()), country, organization, commonName);
+		auto pName = CreateNameWithEntries(country, organization, commonName);
+		if (!X509_set_issuer_name(get(), pName.get()))
+			CATAPULT_THROW_RUNTIME_ERROR("failed to set certificate issuer name");
 	}
 
 	void CertificateBuilder::setPublicKey(const Key& publicKey) {

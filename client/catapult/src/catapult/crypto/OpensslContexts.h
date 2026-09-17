@@ -21,17 +21,16 @@
 
 #pragma once
 #include "catapult/exceptions.h"
-#include "catapult/preprocessor.h"
 
-struct MAY_ALIAS evp_cipher_ctx_st;
-struct MAY_ALIAS evp_md_ctx_st;
+struct evp_cipher_ctx_st;
+struct evp_md_ctx_st;
 
 namespace catapult { namespace crypto {
 
 	// region OpensslDigestContext
 
 	/// Wrapper for openssl digest context.
-	class alignas(32) OpensslDigestContext {
+	class OpensslDigestContext {
 	private:
 		using context_type = evp_md_ctx_st;
 
@@ -54,10 +53,11 @@ namespace catapult { namespace crypto {
 
 	private:
 		context_type* get();
-		void reset();
 
 	private:
-		uint8_t m_buffer[256];
+		// owned via EVP_MD_CTX_new / EVP_MD_CTX_free (opensssl treats this as an opaque type whose layout - and size - is
+		// not part of its public API contract, and has changed across major versions; do not assume a fixed size for it).
+		context_type* m_pContext;
 	};
 
 	// endregion
@@ -65,7 +65,7 @@ namespace catapult { namespace crypto {
 	// region OpensslCipherContext
 
 	/// Wrapper for openssl cipher context.
-	class alignas(32) OpensslCipherContext {
+	class OpensslCipherContext {
 	private:
 		using context_type = evp_cipher_ctx_st;
 
@@ -94,10 +94,10 @@ namespace catapult { namespace crypto {
 
 	private:
 		context_type* get();
-		void reset();
 
 	private:
-		uint8_t m_buffer[512];
+		// owned via EVP_CIPHER_CTX_new / EVP_CIPHER_CTX_free (see OpensslDigestContext::m_pContext for rationale).
+		context_type* m_pContext;
 	};
 
 	// endregion
