@@ -55,8 +55,7 @@ namespace catapult { namespace crypto {
 		context_type* get();
 
 	private:
-		// owned via EVP_MD_CTX_new / EVP_MD_CTX_free (opensssl treats this as an opaque type whose layout - and size - is
-		// not part of its public API contract, and has changed across major versions; do not assume a fixed size for it).
+		// Switch to using EVP_MD_CTX_new / EVP_MD_CTX_free to match EVP_CIPHER_CTX
 		context_type* m_pContext;
 	};
 
@@ -96,7 +95,8 @@ namespace catapult { namespace crypto {
 		context_type* get();
 
 	private:
-		// owned via EVP_CIPHER_CTX_new / EVP_CIPHER_CTX_free (see OpensslDigestContext::m_pContext for rationale).
+		// Switch to using EVP_CIPHER_CTX_new / EVP_CIPHER_CTX_free since the EVP_CIPHER_CTX_reset() does not work since
+		// it exit early OpenSSL treats this struct as an opaque type, so decided to not update the value directly
 		context_type* m_pContext;
 	};
 
