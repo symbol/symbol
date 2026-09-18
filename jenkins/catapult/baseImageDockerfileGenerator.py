@@ -199,6 +199,9 @@ class OptionsManager:
 		if self.is_clang and self.compiler.version >= 23:
 			descriptor.cxxflags += ['-include iterator']
 
+		if self.compiler.c.startswith('gcc') and 16 == self.compiler.version:
+			descriptor.cxxflags += ['-Wno-error=maybe-uninitialized']
+
 		return self._cmake(descriptor)
 
 	def googletest(self):
