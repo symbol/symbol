@@ -20,6 +20,7 @@
 **/
 
 #include "OpensslContexts.h"
+#include "catapult/types.h"
 
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -35,17 +36,20 @@ namespace catapult { namespace crypto {
 
 	// region OpensslDigestContext
 
-	OpensslDigestContext::OpensslDigestContext() : m_pContext(EVP_MD_CTX_new()) {
-		if (!m_pContext)
-			throw std::bad_alloc();
+	OpensslDigestContext::OpensslDigestContext() {
+		std::memset(&m_buffer, 0, CountOf(m_buffer));
 	}
 
 	OpensslDigestContext::~OpensslDigestContext() {
-		EVP_MD_CTX_free(m_pContext);
+		reset();
 	}
 
 	OpensslDigestContext::context_type* OpensslDigestContext::get() {
-		return m_pContext;
+		return reinterpret_cast<context_type*>(m_buffer);
+	}
+
+	void OpensslDigestContext::reset() {
+		EVP_MD_CTX_reset(get());
 	}
 
 	// endregion
