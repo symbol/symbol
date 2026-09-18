@@ -21,16 +21,18 @@
 
 #pragma once
 #include "catapult/exceptions.h"
+#include "catapult/preprocessor.h"
+#include "catapult/utils/NonCopyable.h"
 
 struct evp_cipher_ctx_st;
-struct evp_md_ctx_st;
+struct MAY_ALIAS evp_md_ctx_st;
 
 namespace catapult { namespace crypto {
 
 	// region OpensslDigestContext
 
 	/// Wrapper for openssl digest context.
-	class OpensslDigestContext {
+	class alignas(32) OpensslDigestContext {
 	private:
 		using context_type = evp_md_ctx_st;
 
@@ -53,10 +55,10 @@ namespace catapult { namespace crypto {
 
 	private:
 		context_type* get();
+		void reset();
 
 	private:
-		// Switch to using EVP_MD_CTX_new / EVP_MD_CTX_free to match EVP_CIPHER_CTX
-		context_type* m_pContext;
+		uint8_t m_buffer[256];
 	};
 
 	// endregion
@@ -64,7 +66,7 @@ namespace catapult { namespace crypto {
 	// region OpensslCipherContext
 
 	/// Wrapper for openssl cipher context.
-	class OpensslCipherContext {
+	class OpensslCipherContext : public utils::NonCopyable {
 	private:
 		using context_type = evp_cipher_ctx_st;
 
