@@ -20,9 +20,9 @@
 **/
 
 #pragma once
+#include "catapult/utils/NonCopyable.h"
 #include "catapult/exceptions.h"
 #include "catapult/preprocessor.h"
-#include "catapult/utils/NonCopyable.h"
 
 struct evp_cipher_ctx_st;
 struct MAY_ALIAS evp_md_ctx_st;
