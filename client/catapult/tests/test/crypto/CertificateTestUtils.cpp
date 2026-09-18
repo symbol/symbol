@@ -124,6 +124,23 @@ namespace catapult { namespace test {
 			AddTextEntry(name, "O", organization);
 			AddTextEntry(name, "CN", commonName);
 		}
+
+		// openssl 4.0 made X509_get_subject_name / X509_get_issuer_name return `const X509_NAME*`, so entries can no longer be
+		// added directly to a certificate's existing name; duplicate it into a mutable copy, append to that and copy it back in instead
+		using NamePointer = std::unique_ptr<X509_NAME, decltype(&X509_NAME_free)>;
+
+		NamePointer CreateNameWithEntries(
+				const X509_NAME& existingName,
+				const std::string& country,
+				const std::string& organization,
+				const std::string& commonName) {
+			NamePointer pName(X509_NAME_dup(&existingName), X509_NAME_free);
+			if (!pName)
+				throw std::bad_alloc();
+
+			AddTextEntries(*pName, country, organization, commonName);
+			return pName;
+		}
 	}
 
 	CertificateBuilder::CertificateBuilder()
@@ -146,11 +163,15 @@ namespace catapult { namespace test {
 	}
 
 	void CertificateBuilder::setSubject(const std::string& country, const std::string& organization, const std::string& commonName) {
-		AddTextEntries(*X509_get_subject_name(get()), country, organization, commonName);
+		auto pName = CreateNameWithEntries(*X509_get_subject_name(get()), country, organization, commonName);
+		if (!X509_set_subject_name(get(), pName.get()))
+			CATAPULT_THROW_RUNTIME_ERROR("failed to set certificate subject name");
 	}
 
 	void CertificateBuilder::setIssuer(const std::string& country, const std::string& organization, const std::string& commonName) {
-		AddTextEntries(*X509_get_issuer_name(get()), country, organization, commonName);
+		auto pName = CreateNameWithEntries(*X509_get_issuer_name(get()), country, organization, commonName);
+		if (!X509_set_issuer_name(get(), pName.get()))
+			CATAPULT_THROW_RUNTIME_ERROR("failed to set certificate issuer name");
 	}
 
 	void CertificateBuilder::setPublicKey(EVP_PKEY& key) {

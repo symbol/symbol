@@ -56,21 +56,17 @@ namespace catapult { namespace crypto {
 
 	// region OpensslCipherContext
 
-	OpensslCipherContext::OpensslCipherContext() {
-		std::memset(&m_buffer, 0, CountOf(m_buffer));
-		reset();
+	OpensslCipherContext::OpensslCipherContext() : m_pContext(EVP_CIPHER_CTX_new()) {
+		if (!m_pContext)
+			throw std::bad_alloc();
 	}
 
 	OpensslCipherContext::~OpensslCipherContext() {
-		reset();
+		EVP_CIPHER_CTX_free(m_pContext);
 	}
 
 	OpensslCipherContext::context_type* OpensslCipherContext::get() {
-		return reinterpret_cast<context_type*>(m_buffer);
-	}
-
-	void OpensslCipherContext::reset() {
-		EVP_CIPHER_CTX_reset(get());
+		return m_pContext;
 	}
 
 	// endregion
