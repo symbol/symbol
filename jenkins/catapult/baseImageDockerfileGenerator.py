@@ -216,6 +216,9 @@ class OptionsManager:
 		if self.compiler.c.startswith('clang') and 15 == self.compiler.version:
 			descriptor.cxxflags += ['-Wno-error=unused-but-set-variable']
 
+		if self.compiler.c.startswith('gcc') and 16 == self.compiler.version:
+			descriptor.cxxflags += ['-Wno-error=unused-but-set-variable']
+
 		return self._cmake(descriptor)
 
 	@property
