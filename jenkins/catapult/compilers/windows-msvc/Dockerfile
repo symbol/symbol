@@ -11,7 +11,7 @@ SHELL ["cmd", "/S", "/C"]
 RUN reg add "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v LongPathsEnabled /t REG_DWORD /d 1 /f
 
 # Download the Visual Studio Build Tools bootstrapper.
-ARG COMPILER_VERSION=17
+ARG COMPILER_VERSION=18
 ADD "https://aka.ms/vs/${COMPILER_VERSION}/release/vs_buildtools.exe" C:\Temp\vs_buildtools.exe
 
 # Use the latest release channel. For more control, specify the location of an internal layout.
