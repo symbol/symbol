@@ -1,6 +1,6 @@
 c: msvc
 cpp: msvc
-version: 17
+version: 18
 
 stl:
   version: c++14
@@ -9,4 +9,4 @@ stl:
 deps: []
 
 conan:
-  compiler_version: 194
+  compiler_version: 195

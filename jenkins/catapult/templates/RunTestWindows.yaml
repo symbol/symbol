@@ -12,8 +12,6 @@ services:
       - GTESTFILTER={{GTESTFILTER}}
       - STRESSCOUNT={{STRESSCOUNT}}
     working_dir: /catapult-data/workdir
-    cap_add:
-      - SYS_PTRACE
     command: >-
       python3 /scripts/runDockerTestsInnerTest.py
         --compiler-configuration {{COMPILER_CONFIGURATION}}
