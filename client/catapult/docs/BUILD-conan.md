@@ -123,7 +123,6 @@ _where `build_type` argument value can be any of Release, RelWithDebInfo, Debug_
 * Build:
 
   ```sh
-  cmake --build . --target publish
   msbuild /p:Configuration=Release /p:Platform=x64 /m ALL_BUILD.vcxproj
   ```
   > **NOTE:** Ensure the `Configuration` argument matches the `build_type` used in the `conan install ..` command you have executed earlier.
