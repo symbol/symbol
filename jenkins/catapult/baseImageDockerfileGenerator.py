@@ -580,7 +580,7 @@ class WindowsSystemGenerator:
 
 	def add_git_dependency(self, organization, project, package_options, revision=1):
 		version = self.options.versions[f'{organization}_{project}']
-		generator = 'Visual Studio 16 2019' if 16 == self.options.compiler.version else 'Visual Studio 17 2022'
+		generator = 'Visual Studio 17 2022' if 17 == self.options.compiler.version else 'Visual Studio 18 2026'
 		prefix_path = self.deps_path / organization
 		print_msvc_line([
 			'git clone https://github.com/{ORGANIZATION}/{PROJECT}.git -b {VERSION}',
