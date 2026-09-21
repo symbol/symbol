@@ -12,10 +12,11 @@ RUN reg add "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v LongPathsEnabl
 
 # Download the Visual Studio Build Tools bootstrapper.
 ARG COMPILER_VERSION=18
-ADD "https://aka.ms/vs/${COMPILER_VERSION}/release/vs_buildtools.exe" C:\Temp\vs_buildtools.exe
-
-# Use the latest release channel. For more control, specify the location of an internal layout.
-ADD "https://aka.ms/vs/${COMPILER_VERSION}/release/channel" C:\Temp\VisualStudio.chman
+RUN mkdir C:\Temp && cmd /S /V:ON /C "set CHANNEL=release& `
+	if ""%COMPILER_VERSION%"" == ""18"" set CHANNEL=stable& `
+	echo Using Visual Studio %COMPILER_VERSION% channel: !CHANNEL!& `
+	curl.exe -fL --retry 5 --retry-delay 5 --retry-all-errors ""https://aka.ms/vs/%COMPILER_VERSION%/!CHANNEL!/vs_buildtools.exe"" -o C:\Temp\vs_buildtools.exe && `
+	curl.exe -fL --retry 5 --retry-delay 5 --retry-all-errors ""https://aka.ms/vs/%COMPILER_VERSION%/!CHANNEL!/channel"" -o C:\Temp\VisualStudio.chman"
 
 # Install MSVC C++ compiler, CMake, and MSBuild.
 RUN C:\Temp\vs_buildtools.exe `
