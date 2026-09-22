@@ -38,7 +38,7 @@ digraph "Multisignature Tree" {
 * 開発環境をセットアップしていること。
     [開発環境のセットアップ](../start/setup.md) を参照してください。
 * 3つの [アカウント](default: アカウント) を作成していること。1つはマルチシグに変換するため、他の2つは連署者として機能させるためです。
-    これは [コード](./create-from-private-key.md) または [ウォレット](../../userbook/wallet/create-account.md) を使用して行うことができます。
+    これは [コード](./create-from-private-key.md) または [ウォレット](../../userbook/desktop-wallet/create-account.md) を使用して行うことができます。
 * トランザクション手数料の支払いとアカウントへの資金供給のために [XYM](default: XYM) を入手していること。
     [蛇口 (Faucet) からのテストネット通貨の入手](./testnet-faucet.md) を参照してください。
 
