@@ -199,6 +199,9 @@ class OptionsManager:
 		if self.is_clang and self.compiler.version >= 23:
 			descriptor.cxxflags += ['-include iterator']
 
+		if self.compiler.c.startswith('gcc') and 16 == self.compiler.version:
+			descriptor.cxxflags += ['-Wno-error=maybe-uninitialized']
+
 		return self._cmake(descriptor)
 
 	def googletest(self):
@@ -211,6 +214,9 @@ class OptionsManager:
 		descriptor = self.OptionsDescriptor()
 		descriptor.options += get_dependency_flags('google_benchmark')
 		if self.compiler.c.startswith('clang') and 15 == self.compiler.version:
+			descriptor.cxxflags += ['-Wno-error=unused-but-set-variable']
+
+		if self.compiler.c.startswith('gcc') and 16 == self.compiler.version:
 			descriptor.cxxflags += ['-Wno-error=unused-but-set-variable']
 
 		return self._cmake(descriptor)

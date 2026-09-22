@@ -151,8 +151,9 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wformat-security -Werror -Wstrict-aliasing=1")
 
 	# - Wno-maybe-uninitialized: false positives where gcc isn't sure if an uninitialized variable is used or not
-	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -Wno-maybe-uninitialized -g1 -fno-omit-frame-pointer")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-maybe-uninitialized")
+	# - Wno-error=array-bounds: misfired across boost::log's logger destructor and an unrelated boost::exception::clone()
+	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -Wno-maybe-uninitialized -Wno-array-bounds -g1 -fno-omit-frame-pointer")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-maybe-uninitialized -Wno-array-bounds")
 
 	# add memset_s
 	add_definitions(-D_STDC_WANT_LIB_EXT1_=1)
@@ -293,8 +294,8 @@ function(catapult_set_test_compiler_options)
 			set(CMAKE_CXX_FLAGS_LOCAL "${CMAKE_CXX_FLAGS_LOCAL} -Wno-dangling-reference")
 		endif()
 
-		# - Wno-free-nonheap-object: bug should be fix in gcc 16 - https://gcc.gnu.org/bugzilla/show_bug.cgi?id=115016
-		if (${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER_EQUAL "14" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "16")
+		# - Wno-free-nonheap-object: bug should be fix in gcc 16(still open) - https://gcc.gnu.org/bugzilla/show_bug.cgi?id=115016
+		if (${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER_EQUAL "14" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "17")
 			set(CMAKE_CXX_FLAGS_LOCAL "${CMAKE_CXX_FLAGS_LOCAL} -Wno-free-nonheap-object")
 		endif()
 
