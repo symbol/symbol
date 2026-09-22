@@ -34,7 +34,7 @@ DEPENDENCY_FLAGS = {
 }
 
 WINDOWS_DEPENDENCY_FLAGS = {
-	'facebook_rocksdb': ['-DROCKSDB_INSTALL_ON_WINDOWS=ON'],
+	'facebook_rocksdb': ['-DROCKSDB_INSTALL_ON_WINDOWS=ON', '-DCMAKE_CXX_FLAGS="/wd4702"'],
 
 	'google_googletest': ['-Dgtest_force_shared_crt=on'],
 

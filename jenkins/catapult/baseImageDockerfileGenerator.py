@@ -588,7 +588,7 @@ class WindowsSystemGenerator:
 			'mkdir _build',
 			'cd _build',
 			'cmake {OPTIONS} -S .. -G "{GENERATOR}" -A x64 -DCMAKE_INSTALL_PREFIX={PREFIX_PATH} -DCMAKE_PREFIX_PATH={PREFIX_PATH}',
-			'cmake --build . -j 8 --config RelWithDebInfo --target install',
+			'cmake --build . -j 8 --config RelWithDebInfo --target install --parallel',
 			'cd ../..',
 			'rmdir /q /s {PROJECT}',
 			'echo \"force rebuild revision {REVISION}\"'
