@@ -69,7 +69,7 @@ pipeline {
 								returnStdout: true
 							).trim()
 							: 'windows' == "${OPERATING_SYSTEM}"
-								? 'mcr.microsoft.com/powershell:latest'
+								? "mcr.microsoft.com/windows/servercore:${version}"
 								: "${params.OPERATING_SYSTEM}:${version}"
 						operatingSystem = 'debian' == "${params.OPERATING_SYSTEM}" ? 'ubuntu' : "${params.OPERATING_SYSTEM}"
 						filename = "${operatingSystem.capitalize()}${params.IMAGE_TYPE.capitalize()}${sanitizer}"

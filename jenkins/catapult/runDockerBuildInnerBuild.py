@@ -254,7 +254,10 @@ def main():
 	if builder.use_conan:
 		env.prepare_conan()
 		cxxflags = '["-include", "iterator", "-include", "new"]' if builder.is_clang and builder.compiler.version >= 23 else None
-		env.run_conan_install(args.source_path, conan_options, build_path, args.build_type, cxxflags)
+
+		# build type is set to Release for MSVC because the conan patch below does not work and it seem this might be fix in Openssl 4.1
+		# https://github.com/conan-io/conan-center-index/blob/master/recipes/openssl/4.x.x/patches/01-msvc-use-z7-to-enable-parallel-builds.patch
+		env.run_conan_install(args.source_path, conan_options, build_path, 'Release' if builder.is_msvc else args.build_type, cxxflags)
 		environment_manager.chdir(f'{build_path}/build' if environment_manager.is_windows_platform() else f'{build_path}/build/{args.build_type}')
 		conan_preset_name = 'conan-default' if environment_manager.is_windows_platform() else f'conan-{args.build_type.lower()}'
 		cmake_preset = [f'--preset={conan_preset_name}']

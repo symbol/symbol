@@ -16,4 +16,4 @@ ubuntu-latest:
   nodejs: 26
   java: 21
 windows-lts:
-  image: symbolplatform/symbol-server-compiler:windows-msvc-17
+  image: symbolplatform/symbol-server-compiler:windows-msvc-18
