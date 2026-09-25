@@ -45,11 +45,11 @@ WINDOWS_DEPENDENCY_FLAGS = {
 
 
 def get_dependency_flags(dependency_name):
-	flags = DEPENDENCY_FLAGS.get(dependency_name, [])
+	flags = list(DEPENDENCY_FLAGS.get(dependency_name, []))
 	if EnvironmentManager.is_windows_platform():
 		flags += WINDOWS_DEPENDENCY_FLAGS.get(dependency_name, [])
 
-	flags.extend(['cxxflags=--std=c++20'] if 'boost' == dependency_name else ['-DCMAKE_CXX_STANDARD=20', '-DCMAKE_CXX_STANDARD_REQUIRED=ON'])
+	flags.extend(['cxxstd=20'] if 'boost' == dependency_name else ['-DCMAKE_CXX_STANDARD=20', '-DCMAKE_CXX_STANDARD_REQUIRED=ON'])
 	return flags
 
 
