@@ -1,6 +1,6 @@
 c: gcc
 cpp: g++
-version: 15
+version: 16
 
 stl:
   version: ''
