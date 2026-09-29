@@ -173,7 +173,6 @@ namespace catapult { namespace cache {
 		for (const auto& columnFamilyName : m_settings.ColumnFamilyNames)
 			columnFamilies.push_back(rocksdb::ColumnFamilyDescriptor(columnFamilyName, columnFamilyOptions));
 
-		rocksdb::DB* pDb;
 		auto dbOptions = CreateDatabaseOptions(m_settings.DatabaseConfig);
 
 		// On Windows, the OS may hold file handles open briefly after a prior instance closes,
@@ -184,8 +183,8 @@ namespace catapult { namespace cache {
 		constexpr uint32_t Num_Open_Attempts = 1;
 #endif
 		auto status = utils::RetryWithBackoff(
-				[this, &dbOptions, &columnFamilies, &pDb]() {
-					return rocksdb::DB::Open(dbOptions, m_settings.DatabaseDirectory, columnFamilies, &m_handles, &pDb);
+				[this, &dbOptions, &columnFamilies]() {
+					return rocksdb::DB::Open(dbOptions, m_settings.DatabaseDirectory, columnFamilies, &m_handles, &m_pDb);
 				},
 				IsRetryableAfterFailedOpen,
 				Num_Open_Attempts,
@@ -201,7 +200,6 @@ namespace catapult { namespace cache {
 							<< "RocksDB open failed (attempt " << (attempt + 1) << "/" << Num_Open_Attempts << "): "
 							<< openStatus.ToString() << ", retrying in " << delayMs << "ms";
 				});
-		m_pDb.reset(pDb);
 		if (!status.ok())
 			CATAPULT_THROW_RUNTIME_ERROR_2("couldn't open database", m_settings.DatabaseDirectory, status.ToString());
 	}

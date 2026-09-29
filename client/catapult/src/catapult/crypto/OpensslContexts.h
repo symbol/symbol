@@ -20,10 +20,11 @@
 **/
 
 #pragma once
+#include "catapult/utils/NonCopyable.h"
 #include "catapult/exceptions.h"
 #include "catapult/preprocessor.h"
 
-struct MAY_ALIAS evp_cipher_ctx_st;
+struct evp_cipher_ctx_st;
 struct MAY_ALIAS evp_md_ctx_st;
 
 namespace catapult { namespace crypto {
@@ -65,7 +66,7 @@ namespace catapult { namespace crypto {
 	// region OpensslCipherContext
 
 	/// Wrapper for openssl cipher context.
-	class alignas(32) OpensslCipherContext {
+	class OpensslCipherContext : public utils::NonCopyable {
 	private:
 		using context_type = evp_cipher_ctx_st;
 
@@ -94,10 +95,11 @@ namespace catapult { namespace crypto {
 
 	private:
 		context_type* get();
-		void reset();
 
 	private:
-		uint8_t m_buffer[512];
+		// Switch to using EVP_CIPHER_CTX_new / EVP_CIPHER_CTX_free since the EVP_CIPHER_CTX_reset() does not work since
+		// it exit early OpenSSL treats this struct as an opaque type, so decided to not update the value directly
+		context_type* m_pContext;
 	};
 
 	// endregion
