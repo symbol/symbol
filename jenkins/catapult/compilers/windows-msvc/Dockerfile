@@ -18,7 +18,6 @@ RUN mkdir C:\Temp && cmd /S /V:ON /C " `
 		echo Downloading from !BOOTSTRAPPER_URL! && `
 		curl.exe -fL --retry 5 --retry-delay 5 --retry-all-errors "!BOOTSTRAPPER_URL!" -o C:\Temp\vs_buildtools.exe"
 
-
 # Install MSVC C++ compiler, CMake, and MSBuild.
 RUN cmd /S /V:ON /C "C:\Temp\vs_buildtools.exe `
 	--quiet --wait --norestart --nocache `
@@ -31,7 +30,7 @@ RUN cmd /S /V:ON /C "C:\Temp\vs_buildtools.exe `
 	--add Microsoft.VisualStudio.Component.VC.Redist.14.Latest `
 	--includeRecommended `
 	& if !ERRORLEVEL! == 3010 (exit /b 0) else (exit /b !ERRORLEVEL!) && `
-    del /F vs_buildtools.exe"
+	del /F vs_buildtools.exe"
 
 # Install scoop, git (required to update scoop) and PowerShell 7.
 RUN powershell.exe -ExecutionPolicy RemoteSigned -Command $ErrorActionPreference = 'Stop'; `
