@@ -163,7 +163,7 @@ class BuildManager(BasicBuildManager):
 			for name in ['facebook', 'mongodb', 'openssl', 'zeromq']:
 				self.environment_manager.copy_glob_with_symlinks(f'c:/usr/catapult/deps/{name}/bin', '*.dll', destination)
 
-			for name in ['engines-3', 'ossl-modules']:
+			for name in ['ossl-modules']:
 				self.environment_manager.copy_tree_with_symlinks(f'c:/usr/catapult/deps/openssl/lib/{name}', Path(destination) / 'openssl/lib' / name)
 
 			return
@@ -191,7 +191,7 @@ class BuildManager(BasicBuildManager):
 		for name in ['crypto', 'ssl']:
 			self.environment_manager.copy_glob_with_symlinks(openssl_source_directory, f'lib{name}.so*', Path(destination))
 
-		for name in ['engines-3', 'ossl-modules']:
+		for name in ['ossl-modules']:
 			self.environment_manager.copy_tree_with_symlinks(openssl_source_directory / name, Path(destination) / name)
 
 	def copy_compiler_deps(self, destination):
