@@ -33,7 +33,7 @@ Before you start, make sure to:
     See [Setting Up a Development Environment](../start/setup.md).
 * Create an <account:> to own the mosaic, either
     [from code](../accounts/create-from-private-key.md) or
-    [by using a wallet](../../userbook/wallet/create-account.md).
+    [by using a wallet](../../userbook/desktop-wallet/create-account.md).
 * Create a mosaic owned by the signer account.
     See [Creating a Mosaic](./create-mosaic.md).
 * Obtain <XYM:> to pay for the transaction fee.

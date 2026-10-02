@@ -271,8 +271,8 @@ The user only needs to initiate the first one and the rest follow automatically.
 
 ## Workflows
 
-An application like the Symbol Mobile Wallet takes care of the steps described above and offers a streamlined user
-interface for the following workflows.
+An application like the [Symbol Mobile Wallet](../userbook/mobile-wallet/intro.md) takes care of the steps described
+above and offers a streamlined user interface for the following workflows.
 
 !!! warning "Invalid requests are not refunded"
 
@@ -367,7 +367,8 @@ address for the target network.
     encrypt the message, or exceed configured limits are not processed and the funds remain in the bridge account
     as _donations_.
 
-Applications like the Symbol Mobile Wallet perform routine checks before submitting a request to minimize this risk.
+Applications like the [Symbol Mobile Wallet](../userbook/mobile-wallet/intro.md) perform routine checks before
+submitting a request to minimize this risk.
 
 When using the bridge manually by sending a transaction to any of its accounts, users should always check the
 bridge's supported token, direction, destination-address format, fees, and limits before submitting a request.
