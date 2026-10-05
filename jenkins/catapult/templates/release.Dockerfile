@@ -24,5 +24,6 @@ ARG CATAPULT_HOME=/usr/catapult
 COPY --chown=1000:1000 --from=builder /tmp/build/binaries ${CATAPULT_HOME}
 WORKDIR ${CATAPULT_HOME}
 ENV LD_LIBRARY_PATH="${CATAPULT_HOME}/lib:${CATAPULT_HOME}/deps"
+ENV OPENSSL_MODULES="${CATAPULT_HOME}/deps/ossl-modules"
 ARG USER_NAME='ubuntu'
 USER ${USER_NAME}

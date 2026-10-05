@@ -162,11 +162,13 @@ def main():
 	process_manager.list_dir(args.source_path)
 	process_manager.list_dir(output_path)
 
+	environment_manager.set_env_var('OPENSSL_MODULES', f'{output_path}/deps/ossl-modules')
 	if EnvironmentManager.is_windows_platform():
 		path = environment_manager.get_env_var('PATH')
 		environment_manager.set_env_var('PATH', f'{path};{output_path}/lib;{output_path}/deps')
 	else:
 		environment_manager.set_env_var('LD_LIBRARY_PATH', f'{output_path}/lib:{output_path}/deps')
+
 	logs_path = Path(args.out_dir) / 'logs'
 
 	# There seems to be a bug in gtest where specifying the `--gtest_output=` parameter causes

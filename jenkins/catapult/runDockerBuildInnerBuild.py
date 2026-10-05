@@ -81,7 +81,7 @@ class BuildManager(BasicBuildManager):
 	def cmake_settings(self, output_path):
 		settings = [
 			('CMAKE_INSTALL_PREFIX', output_path),
-			('CMAKE_BUILD_TYPE', self.build_configuration),
+			('CMAKE_BUILD_TYPE', self.build_type),
 			('CATAPULT_TEST_DB_URL', 'mongodb://db:27017'),
 			('CATAPULT_DOCKER_TESTS', 'ON'),
 			('ENABLE_CODE_COVERAGE', 'ON' if self.enable_code_coverage else 'OFF')
@@ -123,7 +123,7 @@ class BuildManager(BasicBuildManager):
 		if self.environment_manager.is_windows_platform():
 			self.dispatch_subprocess(
 				['cmake'] + cmake_preset + cmake_settings + [
-					'-G', 'Visual Studio 16 2019' if 16 == self.compiler.version else 'Visual Studio 17 2022', '-A', 'x64', source_path
+					'-G', 'Visual Studio 17 2022' if 17 == self.compiler.version else 'Visual Studio 18 2026', '-A', 'x64', source_path
 				]
 			)
 		else:
@@ -163,7 +163,7 @@ class BuildManager(BasicBuildManager):
 			for name in ['facebook', 'mongodb', 'openssl', 'zeromq']:
 				self.environment_manager.copy_glob_with_symlinks(f'c:/usr/catapult/deps/{name}/bin', '*.dll', destination)
 
-			for name in ['engines-3', 'ossl-modules']:
+			for name in ['ossl-modules']:
 				self.environment_manager.copy_tree_with_symlinks(f'c:/usr/catapult/deps/openssl/lib/{name}', Path(destination) / 'openssl/lib' / name)
 
 			return
@@ -182,7 +182,7 @@ class BuildManager(BasicBuildManager):
 			'thread']:
 			self.environment_manager.copy_glob_with_symlinks('/mybuild/lib', f'libboost_{name}.so*', destination)
 
-		for name in ['bson2', 'mongoc2', 'bsoncxx', 'mongocxx', 'zmq', 'rocksdb', 'snappy', 'gflags']:
+		for name in ['bson2', 'mongoc2', 'bsoncxx1', 'mongocxx1', 'zmq', 'rocksdb', 'snappy', 'gflags']:
 			system_bin_path = self.environment_manager.system_bin_path
 			self.environment_manager.copy_glob_with_symlinks(system_bin_path, f'lib{name}.so*', destination)
 
@@ -191,7 +191,7 @@ class BuildManager(BasicBuildManager):
 		for name in ['crypto', 'ssl']:
 			self.environment_manager.copy_glob_with_symlinks(openssl_source_directory, f'lib{name}.so*', Path(destination))
 
-		for name in ['engines-3', 'ossl-modules']:
+		for name in ['ossl-modules']:
 			self.environment_manager.copy_tree_with_symlinks(openssl_source_directory / name, Path(destination) / name)
 
 	def copy_compiler_deps(self, destination):

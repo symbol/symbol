@@ -35,10 +35,6 @@ class BasicBuildManager:
 		return 'tests' != self.build_disposition
 
 	@property
-	def build_configuration(self):
-		return 'RelWithDebInfo'
-
-	@property
 	def versioned_compiler(self):
 		return f'{self.compiler.c}-{self.compiler.version}'
 

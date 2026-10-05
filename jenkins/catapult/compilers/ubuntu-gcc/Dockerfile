@@ -1,5 +1,4 @@
-# use Ubuntu 25.10 to get gcc 14/15 with latest verion.
-FROM ubuntu:25.10
+FROM ubuntu:26.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 
