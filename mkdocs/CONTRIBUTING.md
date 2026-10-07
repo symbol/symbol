@@ -170,7 +170,7 @@ Steps can be navigated while the image is zoomed.
 {% import 'tutorial.jinja2' as tutorial %}
 
 {{ tutorial.list_begin() }}
-{{ tutorial.step_begin("screenshots/create-profile-0.jpg") }}
+{{ tutorial.step_begin("screenshots/create-profile-0.webp") }}
 Write here the description for this step.
 {{ tutorial.step_end() }}
 {{ tutorial.list_end() }}
