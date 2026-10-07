@@ -213,9 +213,12 @@ class BuildManager(BasicBuildManager):
 		# copy tests
 		if not self.is_release:
 			self.environment_manager.mkdirs(tests_output_path, exist_ok=True)
-			self.environment_manager.copy_glob_subtree_with_symlinks('./bin', 'tests*', tests_output_path)
 			if EnvironmentManager.is_windows_platform():
+				# only copy the executables, the matching .pdb files are several times larger than the rest of the image
+				self.environment_manager.copy_glob_subtree_with_symlinks('./bin', 'tests*.exe', tests_output_path)
 				self.environment_manager.copy_glob_subtree_with_symlinks('./bin', '*.dll', tests_output_path)
+			else:
+				self.environment_manager.copy_glob_subtree_with_symlinks('./bin', 'tests*', tests_output_path)
 
 		# list directories
 		self.list_dir(output_path)
