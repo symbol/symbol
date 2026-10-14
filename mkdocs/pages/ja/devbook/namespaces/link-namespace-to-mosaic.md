@@ -15,7 +15,7 @@ tutorial_level: intermediate
 
 * 開発環境をセットアップしていること。
     [開発環境のセットアップ](../start/setup.md) を参照してください。
-* ネームスペースを所有する [アカウント](default: アカウント) を、[コード](../accounts/create-from-private-key.md) または [ウォレット](../../userbook/wallet/create-account.md) を使用して作成していること。
+* ネームスペースを所有する [アカウント](default: アカウント) を、[コード](../accounts/create-from-private-key.md) または [ウォレット](../../userbook/desktop-wallet/create-account.md) を使用して作成していること。
 * モザイクにリンクするための [ルートネームスペースを登録](./register-root-namespace.md) していること。
 * リンク対象のモザイクIDを保有していること。新しく作成するか、既存のモザイクを使用できます。
 * トランザクション手数料を支払うための [XYM](default: XYM) を入手していること。
