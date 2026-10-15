@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.23)
 
 message("--- locating mongo dependencies ---")
-find_package(mongocxx 4.5.3 EXACT REQUIRED)
+find_package(mongocxx 4.6.1 EXACT REQUIRED)
 find_package(mongoc 2.5.6 EXACT REQUIRED)
 
 message("mongocxx  ver: ${mongocxx_VERSION}")
