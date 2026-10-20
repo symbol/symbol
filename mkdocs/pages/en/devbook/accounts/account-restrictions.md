@@ -40,7 +40,7 @@ Before you start, make sure to:
 * Set up your development environment.
     See [Setting Up a Development Environment](../start/setup.md).
 * Create an <account:>: to restrict, either [from code](./create-from-private-key.md) or
-    [by using a wallet](../../userbook/wallet/create-account.md),
+    [by using a wallet](../../userbook/desktop-wallet/create-account.md),
     or use the provided default account.
 * Obtain <XYM:> to pay for the transaction fees.
     See [Getting Testnet Funds from the Faucet](./testnet-faucet.md).

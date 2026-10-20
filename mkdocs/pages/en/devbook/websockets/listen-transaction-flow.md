@@ -27,7 +27,7 @@ Before you start, make sure to:
 * Have the address of the account to monitor.
 * Have an account with enough balance for transaction fees.
   See [Creating an Account from a Private Key](../accounts/create-from-private-key.md) or
-  [Creating an Account by Using a Wallet](../../userbook/wallet/create-account.md).
+  [Creating an Account by Using a Wallet](../../userbook/desktop-wallet/create-account.md).
 
 Additionally, install the language-specific WebSocket library:
 

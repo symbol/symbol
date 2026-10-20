@@ -116,7 +116,8 @@ This feature can be used to reclaim tokens or enforce contractual terms.
 Creating a mosaic requires paying a one-time lease fee in the network currency (<XYM:>).
 
 The cost of the lease fee can be determined beforehand by querying the network,
-and applications like the [Symbol Wallet](../userbook/wallet/install.md) typically display this information.
+and applications like the [Symbol Desktop Wallet](../userbook/desktop-wallet/install.md) typically display this
+information.
 
 The fee must be paid at the time of creation and is non-refundable.
 It is paid to a _sink account_, an account managed by the Symbol team, that collects mosaic rental fees for protocol and
