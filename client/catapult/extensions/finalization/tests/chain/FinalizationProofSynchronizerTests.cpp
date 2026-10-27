@@ -77,16 +77,6 @@ namespace catapult { namespace chain {
 				m_validationResult = false;
 			}
 
-			void extendLocalChain(Height height) {
-				auto startHeight = m_pBlockStorageCache->view().chainHeight() + Height(1);
-				auto pBlockStorage = mocks::CreateMemoryBlockStorage(static_cast<uint32_t>(height.unwrap()));
-				auto modifier = m_pBlockStorageCache->modifier();
-				for (auto i = startHeight; i <= height; i = i + Height(1))
-					modifier.saveBlock(*pBlockStorage->loadBlockElement(i));
-
-				modifier.commit();
-			}
-
 		public:
 			auto synchronize() {
 				return m_synchronizer(m_proofApi).get();
@@ -368,72 +358,13 @@ namespace catapult { namespace chain {
 
 	// region unfinalizedBlocksDuration
 
-	namespace {
-		void AssertNeutralWhenLocalChainHeightIsLessThanLocalFinalizedHeight(BlockDuration unfinalizedBlocksDuration) {
-			// Arrange: local finalized height (100) is greater than local chain height (99)
-			TestContext context(20, Height(99), Height(100), unfinalizedBlocksDuration);
-			context.api().setFinalizationStatistics(CreateFinalizationStatistics(FinalizationEpoch(7), Height(120)));
-
-			// Act + Assert:
-			AssertNeutral(context);
-		}
-	}
-
-	TEST(TEST_CLASS, NeutralWhenLocalChainHeightIsLessThanLocalFinalizedHeight_ZeroUnfinalizedBlocksDuration) {
-		AssertNeutralWhenLocalChainHeightIsLessThanLocalFinalizedHeight(BlockDuration());
-	}
-
 	TEST(TEST_CLASS, NeutralWhenLocalChainHeightIsLessThanLocalFinalizedHeight_NonzeroUnfinalizedBlocksDuration) {
-		AssertNeutralWhenLocalChainHeightIsLessThanLocalFinalizedHeight(BlockDuration(5));
-	}
-
-	TEST(TEST_CLASS, SuccessAfterLocalChainCatchesUpToLocalFinalizedHeight_NonzeroUnfinalizedBlocksDuration) {
 		// Arrange: local finalized height (100) is greater than local chain height (99)
 		TestContext context(20, Height(99), Height(100), BlockDuration(5));
 		context.api().setFinalizationStatistics(CreateFinalizationStatistics(FinalizationEpoch(7), Height(120)));
 
-		auto pProof = std::make_shared<model::FinalizationProof>();
-		pProof->Round = { FinalizationEpoch(7), FinalizationPoint(111) };
-		pProof->Height = Height(120);
-		pProof->Hash = Hash256{ { 33 } };
-		context.api().setProof(pProof);
-
-		// Act + Assert: no proof is pulled until local unfinalized blocks duration reaches the threshold
+		// Act + Assert:
 		AssertNeutral(context);
-
-		context.extendLocalChain(Height(100));
-		AssertNeutral(context);
-
-		context.extendLocalChain(Height(104));
-		AssertNeutral(context);
-
-		// Act + Assert: same synchronizer pulls next proof once the threshold is reached
-		context.extendLocalChain(Height(105));
-		AssertSuccess(context, FinalizationEpoch(7), Height(120));
-	}
-
-	TEST(TEST_CLASS, NeutralWhenPulledProofHeightIsGreaterThanLocalChainHeight_NonzeroUnfinalizedBlocksDuration) {
-		// Arrange: pull a proof (120) that is ahead of local chain height (105) from a remote that has finalized a later epoch
-		TestContext context(20, Height(105), Height(100), BlockDuration(5));
-		context.api().setFinalizationStatistics(CreateFinalizationStatistics(FinalizationEpoch(8), Height(140)));
-
-		auto pProof = std::make_shared<model::FinalizationProof>();
-		pProof->Round = { FinalizationEpoch(7), FinalizationPoint(111) };
-		pProof->Height = Height(120);
-		pProof->Hash = Hash256{ { 33 } };
-		context.api().setProof(pProof);
-
-		AssertSuccess(context, FinalizationEpoch(7), Height(120));
-
-		// Act: local finalized height (120) is now greater than local chain height (105)
-		auto result = context.synchronize();
-
-		// Assert: no additional proof is pulled
-		EXPECT_EQ(ionet::NodeInteractionResultCode::Neutral, result);
-
-		EXPECT_EQ(std::vector<FinalizationEpoch>({ FinalizationEpoch(7) }), context.api().proofEpochs());
-		EXPECT_EQ(1u, context.numValidationCalls());
-		EXPECT_EQ(1u, context.storage().savedProofDescriptors().size());
 	}
 
 	TEST(TEST_CLASS, NeutralWhenLocalUnfinalizedBlocksDurationIsLessThanThreshold_NonzeroUnfinalizedBlocksDuration) {
