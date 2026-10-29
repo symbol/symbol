@@ -358,6 +358,15 @@ namespace catapult { namespace chain {
 
 	// region unfinalizedBlocksDuration
 
+	TEST(TEST_CLASS, NeutralWhenLocalChainHeightIsLessThanLocalFinalizedHeight_NonzeroUnfinalizedBlocksDuration) {
+		// Arrange: local finalized height (100) is greater than local chain height (99)
+		TestContext context(20, Height(99), Height(100), BlockDuration(5));
+		context.api().setFinalizationStatistics(CreateFinalizationStatistics(FinalizationEpoch(7), Height(120)));
+
+		// Act + Assert:
+		AssertNeutral(context);
+	}
+
 	TEST(TEST_CLASS, NeutralWhenLocalUnfinalizedBlocksDurationIsLessThanThreshold_NonzeroUnfinalizedBlocksDuration) {
 		// Arrange:
 		TestContext context(20, Height(85), Height(81), BlockDuration(5));
