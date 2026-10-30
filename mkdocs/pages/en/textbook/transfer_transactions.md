@@ -89,6 +89,6 @@ By convention, most wallets and applications assume UTF-8 encoding.
 
     Note that this prefix byte reduces the maximum message length to 1023 bytes.
 
-    This convention is supported by the [Symbol Desktop Wallet](../userbook/wallet/install.md),
+    This convention is supported by the [Symbol Desktop Wallet](../userbook/desktop-wallet/install.md),
     the [Symbol Explorer](https://symbol.fyi), and many other applications,
     but it is not part of the Symbol protocol itself.

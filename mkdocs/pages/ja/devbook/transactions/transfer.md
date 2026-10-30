@@ -28,7 +28,7 @@ SDK が適切なトランザクション手数料を計算できるよう、推�
     [開発環境のセットアップ](../start/setup.md) を参照してください。
 * 転送トランザクションを送信するための [アカウント](default:アカウント) を、
     [コード](../accounts/create-from-private-key.md) または
-    [ウォレットを使用して](../../userbook/wallet/create-account.md) 作成していること。
+    [ウォレットを使用して](../../userbook/desktop-wallet/create-account.md) 作成していること。
 * トランザクション手数料と転送額を支払うための <XYM:> を入手していること。
     [蛇口 (Faucet) からの通貨の入手](../accounts/testnet-faucet.md) を参照してください。
 
