@@ -68,7 +68,7 @@ To use your own accounts, complete the following steps:
 
 * Create an account (Account A) to initiate the aggregate transaction, either
   [from code](../accounts/create-from-private-key.md) or
-  [by using a wallet](../../userbook/wallet/create-account.md).
+  [by using a wallet](../../userbook/desktop-wallet/create-account.md).
 * Create a second account (Account B) to participate in the swap.
 * Obtain XYM for Account A to pay for the transaction fee and transfer amounts.
   See [Getting Testnet Funds from the Faucet](../accounts/testnet-faucet.md).
