@@ -106,6 +106,7 @@ namespace catapult { namespace config {
 			EXPECT_EQ(HeightUnorderedSet({ Height(555'555), Height(444'444) }), config.ForkHeights.SkipSecretLockExpirations);
 			EXPECT_EQ(HeightUnorderedSet({ Height(333'333), Height(111'111) }), config.ForkHeights.ForceSecretLockExpirations);
 			EXPECT_EQ(Height(878'979), config.ForkHeights.UniqueAggregateTransactionHash);
+			EXPECT_EQ(Height(1), config.ForkHeights.StrictVrfPublicKeyCheck);
 
 			EXPECT_TRUE(config.TreasuryReissuanceTransactionSignatures.empty());
 			EXPECT_TRUE(config.KnownCorruptAggregateTransactionHashesMap.empty());

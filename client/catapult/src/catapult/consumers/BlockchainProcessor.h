@@ -79,8 +79,10 @@ namespace catapult { namespace consumers {
 
 	/// Creates a blockchain processor around the specified block hit predicate factory (\a blockHitPredicateFactory)
 	/// and batch entity processor (\a batchEntityProcessor) with \a receiptValidationMode.
+	/// \a strictVrfPublicKeyForkHeight is the height at and above which VRF proofs with an invalid public key are rejected.
 	BlockchainProcessor CreateBlockchainProcessor(
 			const BlockHitPredicateFactory& blockHitPredicateFactory,
 			const chain::BatchEntityProcessor& batchEntityProcessor,
-			ReceiptValidationMode receiptValidationMode);
+			ReceiptValidationMode receiptValidationMode,
+			Height strictVrfPublicKeyForkHeight);
 }}

@@ -204,6 +204,43 @@ namespace catapult { namespace crypto {
 		});
 	}
 
+	namespace {
+		VrfProof CreateForgedProofForUnsetKey() {
+			return {
+				utils::ParseByteArray<ProofGamma>("E2FC92296859EBF40FE86D1DEF86B2E60576CC4694966D9B6ACF2DEBBD2B494C"),
+				utils::ParseByteArray<ProofVerificationHash>("49DE79A2288C4A12B58ACBED940BC78B"),
+				utils::ParseByteArray<ProofScalar>("4055F3F64A9A92BE5293732C8AE7C31FBEAAD78533E471E0038D0B1A0FC0600C")
+			};
+		}
+
+		std::vector<uint8_t> ForgedProofAlpha() {
+			return test::HexStringToVector("B84AD849B0039AD38B41513FE5A66CDD");
+		}
+	}
+
+	TEST(TEST_CLASS, VerifyVrfProofAcceptsForgedProofForUnsetKeyWhenValidationNotRequired) {
+		// Arrange: pre-fork behavior does not require a valid public key
+		auto forgedProof = CreateForgedProofForUnsetKey();
+
+		// Act: verify the forged proof against the unset key without requiring a valid key
+		auto proofHash = VerifyVrfProof(forgedProof, ForgedProofAlpha(), Key(), VrfProofOptions::Unsafe_Skip_Valid_Public_Key_Check);
+
+		// Assert: the proof is accepted, confirming it is a genuine forgery (not merely a malformed proof)
+		EXPECT_NE(Hash512(), proofHash);
+		EXPECT_EQ(GenerateVrfProofHash(forgedProof.Gamma), proofHash);
+	}
+
+	TEST(TEST_CLASS, VerifyVrfProofFailsWithInvalidPublicKey) {
+		// Arrange: strict (post-fork) behavior requires a valid main-subgroup public key
+		auto forgedProof = CreateForgedProofForUnsetKey();
+
+		// Act: verify the same forged proof against the unset key while requiring a valid key (the default)
+		auto proofHash = VerifyVrfProof(forgedProof, ForgedProofAlpha(), Key());
+
+		// Assert: the forgery is rejected based on the invalid public key
+		EXPECT_EQ(Hash512(), proofHash);
+	}
+
 	// endregion
 
 	// region GenerateVrfProofHash

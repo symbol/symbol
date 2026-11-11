@@ -123,7 +123,8 @@ namespace catapult { namespace model {
 							{ "skipSecretLockUniquenessChecks", "88776655, 77665544" },
 							{ "skipSecretLockExpirations", "123123, 876543" },
 							{ "forceSecretLockExpirations", "369369, 456789" },
-							{ "uniqueAggregateTransactionHash", "842248" }
+							{ "uniqueAggregateTransactionHash", "842248" },
+							{ "strictVrfPublicKeyCheck", "66554433" }
 						}
 					},
 					{
@@ -215,6 +216,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(HeightUnorderedSet(), config.ForkHeights.SkipSecretLockExpirations);
 				EXPECT_EQ(HeightUnorderedSet(), config.ForkHeights.ForceSecretLockExpirations);
 				EXPECT_EQ(Height(0), config.ForkHeights.UniqueAggregateTransactionHash);
+				EXPECT_EQ(Height(0), config.ForkHeights.StrictVrfPublicKeyCheck);
 
 				EXPECT_TRUE(config.TreasuryReissuanceTransactionSignatures.empty());
 				EXPECT_TRUE(config.KnownCorruptAggregateTransactionHashesMap.empty());
@@ -274,6 +276,7 @@ namespace catapult { namespace model {
 				EXPECT_EQ(HeightUnorderedSet({ Height(123123), Height(876543) }), config.ForkHeights.SkipSecretLockExpirations);
 				EXPECT_EQ(HeightUnorderedSet({ Height(369369), Height(456789) }), config.ForkHeights.ForceSecretLockExpirations);
 				EXPECT_EQ(Height(842248), config.ForkHeights.UniqueAggregateTransactionHash);
+				EXPECT_EQ(Height(66554433), config.ForkHeights.StrictVrfPublicKeyCheck);
 
 				EXPECT_EQ(
 						std::vector<Signature>({

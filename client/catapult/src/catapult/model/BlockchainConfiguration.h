@@ -153,6 +153,9 @@ namespace catapult { namespace model {
 
 			/// Height of fork at which aggregate transaction hash is calculated uniquely.
 			Height UniqueAggregateTransactionHash;
+
+			/// Height of fork at which VRF proofs with an invalid public key are rejected.
+			Height StrictVrfPublicKeyCheck;
 		};
 
 		/// Fork heights.

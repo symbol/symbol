@@ -179,7 +179,7 @@ namespace catapult { namespace crypto {
 		return { gamma.copyTo<ProofGamma>(), c, s };
 	}
 
-	Hash512 VerifyVrfProof(const VrfProof& vrfProof, const RawBuffer& alpha, const Key& publicKey) {
+	Hash512 VerifyVrfProof(const VrfProof& vrfProof, const RawBuffer& alpha, const Key& publicKey, VrfProofOptions options) {
 		auto gamma = vrfProof.Gamma.copyTo<Key>();
 
 		// gamma must be on the curve
@@ -201,6 +201,10 @@ namespace catapult { namespace crypto {
 		ScalarMultiplier encodedC{};
 		std::memcpy(encodedC, vrfProof.VerificationHash.data(), vrfProof.VerificationHash.size());
 		auto u = DoubleScalarMultVarTime(encodedS, publicKey, encodedC);
+
+		// reject when the public key fails validation
+		if (VrfProofOptions::Default == options && Key() == u)
+			return Hash512();
 
 		// V1 = s * h
 		// scalar multiplication cannot fail because s is small enough
