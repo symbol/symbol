@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v2.5.2] - 11-Nov-2026
+
+### Added
+- `trustProxy` configuration property, for deployments running REST behind a reverse proxy.
+
+### Changed
+- Migrate the HTTP server from Restify to Fastify, since Restify does not support Node.js 24.
+- Throttling is now configured with `throttling.max` and `throttling.timeWindow` (milliseconds) instead of `throttling.burst` and `throttling.rate`.
+- Update REST image to Node.js 24.
+- Upgrade ZeroMQ to 6.x. The `websocket.mq.monitorInterval` configuration property is no longer used and has been removed.
+- Upgrade MongoDB driver to 7.x.
+
+### Fixed
+- Currency supply endpoints (`/network/currency/supply/circulating`, `/total` and `/max`) rejected requests that accept `text/plain`.
+- `/accounts/{accountId}/merkle` could not be looked up by public key, only by address.
+- Get transaction endpoint returned 500 instead of 409 when the transaction hash/id is malformed.
+
 ## [v2.5.1] - 23-Sept-2025
 
 ### Added
