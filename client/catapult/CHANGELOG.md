@@ -3,6 +3,37 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.3.10] - 11-Nov-2026
+
+### Summary
+- Catapult Client v1.0.3.10 includes a BREAKING FORK fix.
+
+### Changed
+- update catapult dependencies, including:
+  - updated boost to 1.91.0
+  - updated rocksDB to v11.8.1
+  - updated OpenSSL to 4.0.3
+  - updated clang compiler to v23 
+  - updated gcc to v16 
+  - updated cppzmq to v4.11.0
+  - updated mongo-c-driver to v2.5.6
+  - updated mongodb_mongo_cxx_driver to r4.6.1
+- migrate boost asio usage to non-deprecated APIs
+- update catapult builds to require C++ 20
+
+### Fixed
+- (BREAKING FORK) fix VRF proof verification accepting proofs produced for an invalid VRF public key; at the `strictVrfPublicKeyCheck` fork height, such proofs are now rejected
+- finalization sync will stall during syncing when finalization proofs are pulled faster than blocks; the logic change to wait for blocks.
+- close TLS sockets gracefully to stop Windows RST storm
+- retry RocksDB and state-directory operations on Windows delayed handle release
+- fix reversed `copyTo` arguments and wipe freed OpenSSL memory pool slots
+- add reentrancy guards to `LocalNode` boot and shutdown
+- fix null dereference in `BlockchainSyncConsumer`
+- fix buffer overflow in thread naming
+- fix out-of-bounds vector access in `MemoryStream`
+- expand limits on `SpinReaderWriterLock`
+- remove unneeded lambda capture in `RocksDatabase` (#2078)
+
 ## [1.0.3.9] - 23-Sept-2025
 
 ### Changed
@@ -516,6 +547,7 @@ Mainnet launch.
 ### Added
 - Initial code release.
 
+[1.0.3.10]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.3.9...client%2Fcatapult%2Fv1.0.3.10
 [1.0.3.9]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.3.8...client%2Fcatapult%2Fv1.0.3.9
 [1.0.3.8]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.3.7...client%2Fcatapult%2Fv1.0.3.8
 [1.0.3.7]: https://github.com/symbol/symbol/compare/client%2Fcatapult%2Fv1.0.3.6...client%2Fcatapult%2Fv1.0.3.7
