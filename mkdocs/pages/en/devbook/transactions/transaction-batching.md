@@ -55,7 +55,7 @@ Although a pre-funded test account is provided for convenience, it is not mainta
 To use your own account, complete the following steps:
 
 * Create an account to send the batched transactions, either [from code](../accounts/create-from-private-key.md) or
-  [by using a wallet](../../userbook/wallet/create-account.md).
+  [by using a wallet](../../userbook/desktop-wallet/create-account.md).
 * Obtain XYM to pay for the transaction fee and transfer amounts.
   See [Getting Testnet Funds from the Faucet](../accounts/testnet-faucet.md).
 

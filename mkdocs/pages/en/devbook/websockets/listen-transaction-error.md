@@ -21,7 +21,7 @@ Before you start, make sure to:
   See [Setting Up a Development Environment](../start/setup.md).
 * Have the address of the account to monitor.
   See [Creating an Account from a Private Key](../accounts/create-from-private-key.md) or
-  [Creating an Account by Using a Wallet](../../userbook/wallet/create-account.md).
+  [Creating an Account by Using a Wallet](../../userbook/desktop-wallet/create-account.md).
 
 Additionally, install the language-specific WebSocket library:
 
