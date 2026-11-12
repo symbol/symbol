@@ -46,12 +46,18 @@ namespace catapult { namespace harvesting {
 			enum class SeedOptions { Address, Public_Key, Remote };
 
 		public:
-			explicit TestContext(SeedOptions seedOptions = SeedOptions::Public_Key)
-					: TestContext(test::GenerateKeyPair(), test::GenerateKeyPair(), seedOptions)
+			explicit TestContext(
+					SeedOptions seedOptions = SeedOptions::Public_Key,
+					const utils::KeySet& allowedDelegatedHarvestingMainPublicKeys = utils::KeySet())
+					: TestContext(test::GenerateKeyPair(), test::GenerateKeyPair(), seedOptions, allowedDelegatedHarvestingMainPublicKeys)
 			{}
 
 		private:
-			TestContext(crypto::KeyPair&& mainKeyPair, crypto::KeyPair&& remoteKeyPair, SeedOptions seedOptions)
+			TestContext(
+					crypto::KeyPair&& mainKeyPair,
+					crypto::KeyPair&& remoteKeyPair,
+					SeedOptions seedOptions,
+					const utils::KeySet& allowedDelegatedHarvestingMainPublicKeys = utils::KeySet())
 					: m_dataDirectory(config::CatapultDataDirectory(m_directoryGuard.name()))
 					, m_config(CreateBlockchainConfiguration())
 					, m_cache(test::CreateEmptyCatapultCache(m_config))
@@ -59,7 +65,13 @@ namespace catapult { namespace harvesting {
 					, m_primaryMainAccountPublicKey(mainKeyPair.publicKey())
 					, m_primarySigningPublicKey(SeedOptions::Remote == seedOptions ? remoteKeyPair.publicKey() : mainKeyPair.publicKey())
 					, m_encryptionKeyPair(test::GenerateKeyPair())
-					, m_updater(m_cache, m_unlockedAccounts, m_primarySigningPublicKey, m_encryptionKeyPair, m_dataDirectory) {
+					, m_updater(
+						m_cache,
+						m_unlockedAccounts,
+						m_primarySigningPublicKey,
+						m_encryptionKeyPair,
+						m_dataDirectory,
+						allowedDelegatedHarvestingMainPublicKeys) {
 				if (SeedOptions::Remote == seedOptions) {
 					auto descriptor = BlockGeneratorAccountDescriptor(std::move(remoteKeyPair), test::GenerateKeyPair());
 					auto vrfPublicKey = descriptor.vrfKeyPair().publicKey();
@@ -173,6 +185,14 @@ namespace catapult { namespace harvesting {
 
 			Key addEnabledAccount(const BlockGeneratorAccountDescriptor& descriptor) {
 				return addAccount(descriptor.signingKeyPair().publicKey(), descriptor.vrfKeyPair().publicKey(), Amount(1111));
+			}
+
+			void addEnabledAccount(const BlockGeneratorAccountDescriptor& descriptor, const Key& mainAccountPublicKey) {
+				addAccount(
+					mainAccountPublicKey,
+					descriptor.signingKeyPair().publicKey(),
+					descriptor.vrfKeyPair().publicKey(),
+					Amount(1111));
 			}
 
 			void assertHarvesterFileRecords(const test::HarvestRequestEncryptedPayloads& expectedEncryptedPayloads) {
@@ -313,6 +333,30 @@ namespace catapult { namespace harvesting {
 		context.assertHarvesterFileRecords({ encryptedPayload });
 	}
 
+	TEST(TEST_CLASS, UpdateSavesValidAccount_InAllowList) {
+		// Arrange: add an allowlist that contains the remote's main public key
+		auto mainAccountPublicKey = test::GenerateRandomByteArray<Key>();
+		TestContext context(TestContext::SeedOptions::Public_Key, {
+			test::GenerateRandomByteArray<Key>(),
+			mainAccountPublicKey,
+			test::GenerateRandomByteArray<Key>()
+		});
+		auto descriptors = test::GenerateRandomAccountDescriptors(1);
+		context.addEnabledAccount(descriptors[0], mainAccountPublicKey);
+
+		auto encryptedPayload = context.queueAddMessageWithHarvester(descriptors[0], mainAccountPublicKey);
+
+		// Sanity:
+		EXPECT_EQ(1u, context.numUnlockedAccounts());
+
+		// Act:
+		context.update();
+
+		// Assert: valid account was added to unlocked accounts and to unlocked harvesters file
+		EXPECT_EQ(2u, context.numUnlockedAccounts());
+		context.assertHarvesterFileRecords({ encryptedPayload });
+	}
+
 	TEST(TEST_CLASS, UpdateBypassesInvalidAccount_UnknownMainAccount) {
 		// Arrange:
 		TestContext context;
@@ -372,6 +416,24 @@ namespace catapult { namespace harvesting {
 		AssertUpdateBypasses([](auto& accountState) {
 			SetRandom(accountState.SupplementalPublicKeys.vrf());
 		});
+	}
+
+	TEST(TEST_CLASS, UpdateBypassesInvalidAccount_NotInAllowList) {
+		// Arrange: add an allowlist that does not contain the remote's main public key
+		TestContext context(TestContext::SeedOptions::Public_Key, { test::GenerateRandomByteArray<Key>() });
+		auto descriptors = test::GenerateRandomAccountDescriptors(1);
+		auto mainAccountPublicKey = context.addEnabledAccount(descriptors[0]);
+
+		context.queueAddMessageWithHarvester(descriptors[0], mainAccountPublicKey);
+
+		// Sanity:
+		EXPECT_EQ(1u, context.numUnlockedAccounts());
+
+		// Act:
+		context.update();
+
+		// Assert: remote with main public key not in allowlist was ignored
+		EXPECT_EQ(1u, context.numUnlockedAccounts());
 	}
 
 	TEST(TEST_CLASS, UpdateDoesNotSaveAccountWithHeightGreaterThanCacheHeight) {
@@ -538,6 +600,73 @@ namespace catapult { namespace harvesting {
 
 	TEST(TEST_CLASS, UpdatePrunesIneligibleHarvesterAccounts) {
 		AssertPruned([](auto& accountState) {
+			accountState.Balances.debit(Harvesting_Mosaic_Id, accountState.Balances.get(Harvesting_Mosaic_Id));
+		});
+	}
+
+	namespace {
+		void AssertPrunedAllowList(const consumer<state::AccountState&>& corruptAccountState, bool expectPrune = true) {
+			// Arrange: add three accounts to cache, two of which have main public keys in allowlist
+			auto mainAccountPublicKey2 = test::GenerateRandomByteArray<Key>();
+			auto mainAccountPublicKey3 = test::GenerateRandomByteArray<Key>();
+			TestContext context(TestContext::SeedOptions::Public_Key, {
+				test::GenerateRandomByteArray<Key>(),
+				mainAccountPublicKey2,
+				mainAccountPublicKey3,
+				test::GenerateRandomByteArray<Key>()
+			});
+
+			auto descriptors = test::GenerateRandomAccountDescriptors(3);
+			auto mainAccountPublicKey1 = context.addEnabledAccount(descriptors[0]);
+			context.addEnabledAccount(descriptors[1], mainAccountPublicKey2);
+			context.addEnabledAccount(descriptors[2], mainAccountPublicKey3);
+
+			context.queueAddMessageWithHarvester(descriptors[0], mainAccountPublicKey1);
+			auto encryptedPayload2 = context.queueAddMessageWithHarvester(descriptors[1], mainAccountPublicKey2);
+			auto encryptedPayload3 = context.queueAddMessageWithHarvester(descriptors[2], mainAccountPublicKey3);
+
+			// - trigger initial save; 1 is always pruned because it is not in allowlist
+			context.update();
+
+			// Sanity:
+			EXPECT_EQ(3u, context.numUnlockedAccounts());
+
+			// Act: corrupt the second account and resave
+			context.modifyAccount(mainAccountPublicKey2, corruptAccountState);
+			context.update();
+
+			// Assert: only eligible messages remain in unlocked accounts and unlocked harvesters file
+			if (expectPrune) {
+				EXPECT_EQ(2u, context.numUnlockedAccounts());
+				context.assertHarvesterFileRecords({ encryptedPayload3 });
+			} else {
+				EXPECT_EQ(3u, context.numUnlockedAccounts());
+				context.assertHarvesterFileRecords({ encryptedPayload2, encryptedPayload3 });
+			}
+		}
+	}
+
+	TEST(TEST_CLASS, UpdatePrunesMismatchedLinkedPublicKeyAccounts_AllowList) {
+		// Assert: linkedPublicKey mismatch is fatal error raised by RequireLinkedRemoteAndMainAccounts indicating state corruption
+		EXPECT_THROW(AssertPrunedAllowList([](auto& accountState) {
+			SetRandom(accountState.SupplementalPublicKeys.linked());
+		}), catapult_runtime_error);
+	}
+
+	TEST(TEST_CLASS, UpdateDoesNotPruneMismatchedNodePublicKeyAccounts_AllowList) {
+		AssertPrunedAllowList([](auto& accountState) {
+			SetRandom(accountState.SupplementalPublicKeys.node());
+		}, false);
+	}
+
+	TEST(TEST_CLASS, UpdatePrunesMismatchedVrfPublicKeyAccounts_AllowList) {
+		AssertPrunedAllowList([](auto& accountState) {
+			SetRandom(accountState.SupplementalPublicKeys.vrf());
+		});
+	}
+
+	TEST(TEST_CLASS, UpdatePrunesIneligibleHarvesterAccounts_AllowList) {
+		AssertPrunedAllowList([](auto& accountState) {
 			accountState.Balances.debit(Harvesting_Mosaic_Id, accountState.Balances.get(Harvesting_Mosaic_Id));
 		});
 	}

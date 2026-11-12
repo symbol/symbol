@@ -65,6 +65,8 @@ namespace catapult { namespace harvesting {
 				EXPECT_EQ(0u, config.MaxUnlockedAccounts);
 				EXPECT_EQ(DelegatePrioritizationPolicy::Age, config.DelegatePrioritizationPolicy);
 				EXPECT_EQ(Address(), config.BeneficiaryAddress);
+
+				EXPECT_EQ(utils::KeySet(), config.AllowedDelegatedHarvestingMainPublicKeys);
 			}
 
 			static void AssertCustom(const HarvestingConfiguration& config) {
@@ -76,6 +78,8 @@ namespace catapult { namespace harvesting {
 				EXPECT_EQ(2u, config.MaxUnlockedAccounts);
 				EXPECT_EQ(DelegatePrioritizationPolicy::Importance, config.DelegatePrioritizationPolicy);
 				EXPECT_EQ(model::StringToAddress(Beneficiary_Address), config.BeneficiaryAddress);
+
+				EXPECT_EQ(utils::KeySet(), config.AllowedDelegatedHarvestingMainPublicKeys);
 			}
 		};
 	}
@@ -99,6 +103,44 @@ namespace catapult { namespace harvesting {
 		EXPECT_EQ(Address(), config.BeneficiaryAddress);
 	}
 
+	TEST(TEST_CLASS, CanParseAllowedDelegatedHarvestingMainPublicKeys) {
+		// Arrange:
+		auto properties = HarvestingConfigurationTraits::CreateProperties();
+		properties["allowed_delegated_harvesting_main_public_keys"] = {
+			{ "57E8D07B51E2275E39F73FF32B3CE389441D8628F0D085D3B86D43A3A04EBE9C", "true" },
+			{ "4C3EC8BC1588F5BB34E24EED3941A0295E550E04A6C4BB2D6A420120B25AC700", "false" },
+			{ "BEAE2119EAD87FD9E4BEB19374A13D9FD0C18CE650E1B67105135AF59D088EDA", "true" },
+			{ "C3A1C0F4424D650C26C3196D36C4C08C9AEA9353D7B2C5FD211A8D4E4BABEE9D", "true" }
+		};
+
+		// Act:
+		auto config = HarvestingConfiguration::LoadFromBag(utils::ConfigurationBag(std::move(properties)));
+
+		// Assert:
+		const auto expectedAllowedDelegatedHarvestingMainPublicKeys = utils::KeySet{
+			utils::ParseByteArray<Key>("57E8D07B51E2275E39F73FF32B3CE389441D8628F0D085D3B86D43A3A04EBE9C"),
+			utils::ParseByteArray<Key>("BEAE2119EAD87FD9E4BEB19374A13D9FD0C18CE650E1B67105135AF59D088EDA"),
+			utils::ParseByteArray<Key>("C3A1C0F4424D650C26C3196D36C4C08C9AEA9353D7B2C5FD211A8D4E4BABEE9D")
+		};
+
+		EXPECT_EQ(expectedAllowedDelegatedHarvestingMainPublicKeys, config.AllowedDelegatedHarvestingMainPublicKeys);
+	}
+
+	TEST(TEST_CLASS, CannotParseAllowedDelegatedHarvestingMainPublicKeysWithInvalidPublicKey) {
+		// Arrange:
+		auto properties = HarvestingConfigurationTraits::CreateProperties();
+		properties["allowed_delegated_harvesting_main_public_keys"] = {
+			{ "57E8D07B51E2275E39F73FF32B3CE389441D8628F0D085D3B86D43A3A04EBE9C", "true" },
+			{ "4C3EC8BC1588F5BB34E24EED3941A0295E550E04A6C4BB2D6A420120B25AC700", "false" },
+			{ "BEAE2119EAD87FD9E4BEB19374A13D9FD0C18XE650E1B67105135AF59D088EDA", "true" }, // hex has 'X' character
+			{ "C3A1C0F4424D650C26C3196D36C4C08C9AEA9353D7B2C5FD211A8D4E4BABEE9D", "true" }
+		};
+		const auto bag = utils::ConfigurationBag(std::move(properties));
+
+		// Act + Assert:
+		EXPECT_THROW(HarvestingConfiguration::LoadFromBag(bag), utils::property_malformed_error);
+	}
+
 	// endregion
 
 	// region file io
@@ -120,6 +162,8 @@ namespace catapult { namespace harvesting {
 		EXPECT_EQ(5u, config.MaxUnlockedAccounts);
 		EXPECT_EQ(DelegatePrioritizationPolicy::Importance, config.DelegatePrioritizationPolicy);
 		EXPECT_EQ(Address(), config.BeneficiaryAddress);
+
+		EXPECT_EQ(utils::KeySet(), config.AllowedDelegatedHarvestingMainPublicKeys);
 	}
 
 	// endregion
