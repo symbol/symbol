@@ -60,12 +60,14 @@ namespace catapult { namespace harvesting {
 					const Key& nodePublicKey,
 					const cache::CatapultCache& cache,
 					UnlockedAccounts& unlockedAccounts,
-					UnlockedAccountsStorage& storage)
+					UnlockedAccountsStorage& storage,
+					const utils::KeySet& allowedMainPublicKeys)
 					: m_signingPublicKey(signingPublicKey)
 					, m_nodePublicKey(nodePublicKey)
 					, m_cache(cache)
 					, m_unlockedAccounts(unlockedAccounts)
 					, m_storage(storage)
+					, m_allowedMainPublicKeys(allowedMainPublicKeys)
 					, m_hasAnyRemoval(false)
 			{}
 
@@ -164,9 +166,16 @@ namespace catapult { namespace harvesting {
 				if (GetLinkedPublicKey(accountState) == m_signingPublicKey)
 					return true;
 
-				if (GetNodePublicKey(accountState) != m_nodePublicKey) {
-					CATAPULT_LOG(warning) << "rejecting delegation from " << accountState.PublicKey << ": invalid node public key";
-					return false;
+				if (!m_allowedMainPublicKeys.empty()) {
+					if (m_allowedMainPublicKeys.cend() == m_allowedMainPublicKeys.find(accountState.PublicKey)) {
+						CATAPULT_LOG(warning) << "rejecting delegation from " << accountState.PublicKey << ": not in allow list";
+						return false;
+					}
+				} else {
+					if (GetNodePublicKey(accountState) != m_nodePublicKey) {
+						CATAPULT_LOG(warning) << "rejecting delegation from " << accountState.PublicKey << ": invalid node public key";
+						return false;
+					}
 				}
 
 				return true;
@@ -178,6 +187,7 @@ namespace catapult { namespace harvesting {
 			const cache::CatapultCache& m_cache;
 			UnlockedAccounts& m_unlockedAccounts;
 			UnlockedAccountsStorage& m_storage;
+			const utils::KeySet& m_allowedMainPublicKeys;
 			bool m_hasAnyRemoval;
 		};
 
@@ -189,7 +199,8 @@ namespace catapult { namespace harvesting {
 			UnlockedAccounts& unlockedAccounts,
 			const Key& signingPublicKey,
 			const crypto::KeyPair& encryptionKeyPair,
-			const config::CatapultDataDirectory& dataDirectory)
+			const config::CatapultDataDirectory& dataDirectory,
+			const utils::KeySet& allowedDelegatedHarvestingMainPublicKeys)
 			: m_cache(cache)
 			, m_unlockedAccounts(unlockedAccounts)
 			, m_signingPublicKey(signingPublicKey)
@@ -197,6 +208,7 @@ namespace catapult { namespace harvesting {
 			, m_dataDirectory(dataDirectory)
 			, m_harvestersFilename(m_dataDirectory.rootDir().file("harvesters.dat"))
 			, m_unlockedAccountsStorage(m_harvestersFilename)
+			, m_allowedDelegatedHarvestingMainPublicKeys(allowedDelegatedHarvestingMainPublicKeys)
 	{}
 
 	void UnlockedAccountsUpdater::load() {
@@ -213,7 +225,8 @@ namespace catapult { namespace harvesting {
 				m_encryptionKeyPair.publicKey(),
 				m_cache,
 				m_unlockedAccounts,
-				m_unlockedAccountsStorage);
+				m_unlockedAccountsStorage,
+				m_allowedDelegatedHarvestingMainPublicKeys);
 
 		auto cacheHeight = m_cache.createView().height();
 		UnlockedFileQueueConsumer(m_dataDirectory.dir("transfer_message"), cacheHeight, m_encryptionKeyPair, std::ref(processor));

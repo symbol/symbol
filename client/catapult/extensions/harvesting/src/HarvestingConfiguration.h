@@ -21,6 +21,7 @@
 
 #pragma once
 #include "DelegatePrioritizationPolicy.h"
+#include "catapult/utils/ArraySet.h"
 #include <filesystem>
 #include <string>
 
@@ -51,6 +52,11 @@ namespace catapult { namespace harvesting {
 
 		/// Address of the account receiving part of the harvested fee.
 		Address BeneficiaryAddress;
+
+		/// Optional set of allowed main public keys of delegated harvesting accounts.
+		/// When not empty, delegated harvesting accounts with main public keys not in this set
+		/// will be rejected.
+		utils::KeySet AllowedDelegatedHarvestingMainPublicKeys;
 
 	private:
 		HarvestingConfiguration() = default;
