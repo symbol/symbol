@@ -40,6 +40,11 @@ namespace catapult { namespace crypto {
 #pragma clang diagnostic pop
 #endif
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wallocator-wrappers"
+#endif
+
 		void* CatMalloc(size_t num, const char*, int) {
 			auto* p = GetPool().allocate(num);
 			if (p)
@@ -70,6 +75,10 @@ namespace catapult { namespace crypto {
 
 			free(p);
 		}
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 	}
 
 	SpecializedOpensslPoolAllocator::SpecializedOpensslPoolAllocator()

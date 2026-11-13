@@ -44,6 +44,10 @@ function(get_library_path OUTPUT_LIBRARY_PATH TARGET_NAME)
 endfunction()
 
 ### setup boost
+if(POLICY CMP0167)
+	cmake_policy(SET CMP0167 NEW)
+endif()
+
 message("--- locating boost dependencies ---")
 find_package(Boost 1.91.0 EXACT COMPONENTS ${CATAPULT_BOOST_COMPONENTS} REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
