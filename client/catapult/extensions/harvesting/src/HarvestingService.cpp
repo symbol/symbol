@@ -94,7 +94,8 @@ namespace catapult { namespace harvesting {
 					*pUnlockedAccounts,
 					harvesterSigningPublicKey,
 					encryptionKeyPair,
-					config::CatapultDataDirectory(state.config().User.DataDirectory));
+					config::CatapultDataDirectory(state.config().User.DataDirectory),
+					config.AllowedDelegatedHarvestingMainPublicKeys);
 			pUnlockedAccountsUpdater->load();
 
 			return { pUnlockedAccounts, pUnlockedAccountsUpdater };

@@ -24,10 +24,22 @@
 #include "catapult/model/Address.h"
 #include "catapult/utils/ConfigurationBag.h"
 #include "catapult/utils/ConfigurationUtils.h"
+#include "catapult/utils/HexParser.h"
 
 DEFINE_ADDRESS_CONFIGURATION_VALUE_SUPPORT_ALLOW_EMPTY(true)
 
 namespace catapult { namespace harvesting {
+
+	namespace {
+		size_t ParsePublicKeysSection(const utils::ConfigurationBag& bag, utils::KeySet& publicKeys) {
+			auto sectionName = "allowed_delegated_harvesting_main_public_keys";
+			auto publicKeysPair = utils::ExtractSectionKeysAsTypedVector<Key>(bag, sectionName, [](const auto& str, auto& publicKey) {
+				return utils::TryParseHexStringIntoContainer(str.data(), str.size(), publicKey);
+			});
+			publicKeys.insert(publicKeysPair.first.cbegin(), publicKeysPair.first.cend());
+			return publicKeysPair.second;
+		}
+	}
 
 #define LOAD_PROPERTY(SECTION, NAME) utils::LoadIniProperty(bag, SECTION, #NAME, config.NAME)
 
@@ -50,7 +62,9 @@ namespace catapult { namespace harvesting {
 
 #undef LOAD_HARVESTING_PROPERTY
 
-		utils::VerifyBagSizeExact(bag, 6);
+		auto numPublicKeys = ParsePublicKeysSection(bag, config.AllowedDelegatedHarvestingMainPublicKeys);
+
+		utils::VerifyBagSizeExact(bag, 6 + numPublicKeys);
 		return config;
 	}
 

@@ -22,6 +22,7 @@
 #pragma once
 #include "UnlockedAccountsStorage.h"
 #include "catapult/config/CatapultDataDirectory.h"
+#include "catapult/utils/ArraySet.h"
 
 namespace catapult {
 	namespace cache { class CatapultCache; }
@@ -35,12 +36,14 @@ namespace catapult { namespace harvesting {
 	public:
 		/// Creates unlocked accounts updater around \a cache, \a unlockedAccounts, node owner
 		/// (identified by \a signingPublicKey and \a encryptionKeyPair) and \a dataDirectory.
+		/// \a allowedDelegatedHarvestingMainPublicKeys can limit the delegated harvesters allowed when not empty.
 		UnlockedAccountsUpdater(
 				const cache::CatapultCache& cache,
 				UnlockedAccounts& unlockedAccounts,
 				const Key& signingPublicKey,
 				const crypto::KeyPair& encryptionKeyPair,
-				const config::CatapultDataDirectory& dataDirectory);
+				const config::CatapultDataDirectory& dataDirectory,
+				const utils::KeySet& allowedDelegatedHarvestingMainPublicKeys);
 
 	public:
 		/// Loads storage.
@@ -57,5 +60,6 @@ namespace catapult { namespace harvesting {
 		config::CatapultDataDirectory m_dataDirectory;
 		std::string m_harvestersFilename;
 		UnlockedAccountsStorage m_unlockedAccountsStorage;
+		utils::KeySet m_allowedDelegatedHarvestingMainPublicKeys;
 	};
 }}
