@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 
 The changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.3.11] - 17-Nov-2026
+
+### Summary
+- Catapult Client v1.0.3.11 includes a BREAKING FORK fix(enforced at the `vrfGammaSubgroupCheck` fork height).
+
+### Fixed
+- (BREAKING FORK) fix VRF proof verification accepting proofs whose gamma is outside the main subgroup
+- (BREAKING FORK) reject a neutral-element VRF public key during proof verification, which the strict public key check did not detect
+- (BREAKING FORK) reject VRF key link transactions that link an invalid VRF public key
+
 ## [1.0.3.10] - 11-Nov-2026
 
 ### Summary
