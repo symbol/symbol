@@ -35,4 +35,9 @@ namespace catapult { namespace validators {
 	/// - range is longer than \a minRange
 	/// - range is shorter than \a maxRange
 	DECLARE_STATELESS_VALIDATOR(VotingKeyLinkRange, model::VotingKeyLinkNotification)(uint32_t minRange, uint32_t maxRange);
+
+	/// Validator that applies to vrf key link notifications and validates that:
+	/// - at and after \a forkHeight, a linked vrf public key is a valid vrf public key (canonical, in the main
+	///   subgroup and not the neutral element)
+	DECLARE_STATEFUL_VALIDATOR(VrfKeyLinkPublicKey, model::VrfKeyLinkNotification)(Height forkHeight);
 }}

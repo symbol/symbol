@@ -203,11 +203,16 @@ namespace catapult { namespace crypto {
 		auto u = DoubleScalarMultVarTime(encodedS, publicKey, encodedC);
 
 		// reject when the public key fails validation
-		if (VrfProofOptions::Default == options && Key() == u)
+		if (HasFlag(VrfProofOptions::Check_Public_Key, options) && Key() == u)
+			return Hash512();
+
+		// the neutral element is in the main subgroup, so the check above does not catch a neutral public key; reject that case separately
+		if (HasFlag(VrfProofOptions::Check_Public_Key_Neutral, options) && IsNeutralElement(publicKey))
 			return Hash512();
 
 		// V1 = s * h
-		// scalar multiplication cannot fail because s is small enough
+		// unlike gamma, MapToKey cofactor-clears it (ScalarMultEight), so h is always in
+		// the main subgroup and ScalarMult cannot fail here
 		Key v1;
 		ScalarMult(encodedS, h, v1);
 
@@ -216,9 +221,10 @@ namespace catapult { namespace crypto {
 		ge25519_unpack_positive_vartime(V1, v1);
 
 		// V2 = -(c * gamma)
-		// scalar multiplication cannot fail because c is small enough
+		// Reject gamma is outside the main subgroup
 		Key c_times_gamma;
-		ScalarMult(encodedC, gamma, c_times_gamma);
+		if (!ScalarMult(encodedC, gamma, c_times_gamma) && HasFlag(VrfProofOptions::Check_Gamma, options))
+			return Hash512();
 
 		// unpack cannot fail because V2 is valid by construction
 		ge25519 V2_p3;

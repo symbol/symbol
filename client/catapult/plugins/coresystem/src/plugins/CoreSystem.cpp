@@ -134,10 +134,14 @@ namespace catapult { namespace plugins {
 		};
 
 		void RegisterVrfKeyLinkTransaction(PluginManager& manager) {
+			const auto& config = manager.config();
+
 			manager.addTransactionSupport(CreateVrfKeyLinkTransactionPlugin());
 
-			manager.addStatefulValidatorHook([](auto& builder) {
-				builder.add(keylink::CreateKeyLinkValidator<model::VrfKeyLinkNotification, VrfKeyAccessor>("Vrf"));
+			manager.addStatefulValidatorHook([&config](auto& builder) {
+				builder
+					.add(keylink::CreateKeyLinkValidator<model::VrfKeyLinkNotification, VrfKeyAccessor>("Vrf"))
+					.add(validators::CreateVrfKeyLinkPublicKeyValidator(config.ForkHeights.VrfGammaSubgroupCheck));
 			});
 
 			manager.addObserverHook([](auto& builder) {

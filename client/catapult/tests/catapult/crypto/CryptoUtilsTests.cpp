@@ -83,6 +83,14 @@ namespace catapult { namespace crypto {
 			// Assert:
 			EXPECT_EQ(expectedResult, result) << "for public key " << publicKeyString;
 		}
+
+		void AssertValidVrfPublicKey(const std::string& publicKeyString, bool expectedResult) {
+			// Act:
+			auto result = IsValidVrfPublicKey(utils::ParseByteArray<Key>(publicKeyString));
+
+			// Assert:
+			EXPECT_EQ(expectedResult, result) << "for public key " << publicKeyString;
+		}
 	}
 
 	// endregion
@@ -179,6 +187,32 @@ namespace catapult { namespace crypto {
 
 		// on curve but not in main subgroup
 		AssertUnpackingWithSubGroupCheck("0000000000000000000000000000000000000000000000000000000000000000", false);
+	}
+
+	// endregion
+
+	// region IsValidVrfPublicKey
+
+	TEST(TEST_CLASS, IsValidVrfPublicKeyReturnsTrueForCanonicalMainSubgroupElement) {
+		AssertValidVrfPublicKey("C8C6D604F4D7B56B57247E8686168EEBB2BF8AE40DA7B912143773A77555420E", true);
+	}
+
+	TEST(TEST_CLASS, IsValidVrfPublicKeyReturnsFalseForNeutralElement) {
+		// the neutral element lies in the main subgroup, so a dedicated check is needed to reject a neutral key
+		AssertValidVrfPublicKey("0100000000000000000000000000000000000000000000000000000000000000", false);
+		AssertValidVrfPublicKey("0100000000000000000000000000000000000000000000000000000000000080", false);
+	}
+
+	TEST(TEST_CLASS, IsValidVrfPublicKeyReturnsFalseForElementOnCurveButNotInMainSubgroup) {
+		AssertValidVrfPublicKey("0000000000000000000000000000000000000000000000000000000000000000", false);
+	}
+
+	TEST(TEST_CLASS, IsValidVrfPublicKeyReturnsFalseForElementNotOnCurve) {
+		AssertValidVrfPublicKey("4F91BE9568552181E01968999EFC09BFEB77A736B8F3188160B7769D7B9B9F6E", false);
+	}
+
+	TEST(TEST_CLASS, IsValidVrfPublicKeyReturnsFalseForNonCanonicalElement) {
+		AssertValidVrfPublicKey("EDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F", false);
 	}
 
 	// endregion

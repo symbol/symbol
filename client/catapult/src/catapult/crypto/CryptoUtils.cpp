@@ -278,6 +278,11 @@ namespace catapult { namespace crypto {
 		return UnpackNegative(A, publicKey) && IsInMainSubgroup(A);
 	}
 
+	bool IsValidVrfPublicKey(const Key& publicKey) {
+		ge25519 A;
+		return UnpackNegativeAndCheckSubgroup(A, publicKey) && !IsNeutralElement(publicKey);
+	}
+
 	void HashPrivateKey(const PrivateKey& privateKey, Hash512& hash) {
 		Sha512({ privateKey.data(), privateKey.size() }, hash);
 	}

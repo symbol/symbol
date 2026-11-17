@@ -54,6 +54,10 @@ namespace catapult { namespace crypto {
 	/// - A is in main subgroup
 	bool UnpackNegativeAndCheckSubgroup(ge25519& A, const Key& publicKey);
 
+	/// Returns \c true if \a publicKey is a valid VRF public key (canonical, on the curve, in the main subgroup
+	/// and not the neutral element).
+	bool IsValidVrfPublicKey(const Key& publicKey);
+
 	/// Calculates \a hash of \a privateKey.
 	void HashPrivateKey(const PrivateKey& privateKey, Hash512& hash);
 

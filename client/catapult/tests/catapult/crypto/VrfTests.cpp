@@ -223,7 +223,7 @@ namespace catapult { namespace crypto {
 		auto forgedProof = CreateForgedProofForUnsetKey();
 
 		// Act: verify the forged proof against the unset key without requiring a valid key
-		auto proofHash = VerifyVrfProof(forgedProof, ForgedProofAlpha(), Key(), VrfProofOptions::Unsafe_Skip_Valid_Public_Key_Check);
+		auto proofHash = VerifyVrfProof(forgedProof, ForgedProofAlpha(), Key(), VrfProofOptions::None);
 
 		// Assert: the proof is accepted, confirming it is a genuine forgery (not merely a malformed proof)
 		EXPECT_NE(Hash512(), proofHash);
@@ -238,6 +238,91 @@ namespace catapult { namespace crypto {
 		auto proofHash = VerifyVrfProof(forgedProof, ForgedProofAlpha(), Key());
 
 		// Assert: the forgery is rejected based on the invalid public key
+		EXPECT_EQ(Hash512(), proofHash);
+	}
+
+	// endregion
+
+	// region gamma subgroup / neutral key forgery
+
+	namespace {
+		// the neutral (identity) public key: registering it makes u = s*B - c*identity = s*B, decoupling u from c
+		Key NeutralPublicKey() {
+			return utils::ParseByteArray<Key>("0100000000000000000000000000000000000000000000000000000000000000");
+		}
+
+		// a proof forged for the neutral public key whose gamma lies outside the main subgroup; verification of c * gamma
+		// silently yields the all-zero point, decoupling the proof from gamma so its output can be ground
+		VrfProof CreateForgedProofForNeutralKey() {
+			return {
+				utils::ParseByteArray<ProofGamma>("C7176A703D4DD84FBA3C0B760D10670F2A2053FA2C39CCC64EC7FD7792AC037A"),
+				utils::ParseByteArray<ProofVerificationHash>("F501F950AFE77B642D2B60D6A6D85A91"),
+				utils::ParseByteArray<ProofScalar>("0100000000000000000000000000000000000000000000000000000000000000")
+			};
+		}
+
+		std::vector<uint8_t> ForgedNeutralProofAlpha() {
+			return test::HexStringToVector("D9F3A5C4E1B207685A3C9D0F74E2186B4C7A91D3058EF62A1B9C4D7E830A5F2C");
+		}
+
+		void AssertNeutralKeyForgeryAccepted(VrfProofOptions options) {
+			// Arrange: a forged proof for the neutral public key
+			auto forgedProof = CreateForgedProofForNeutralKey();
+
+			// Act: verify the forged proof against the neutral key with the specified options
+			auto proofHash = VerifyVrfProof(forgedProof, ForgedNeutralProofAlpha(), NeutralPublicKey(), options);
+
+			// Assert: the forgery is accepted (a genuine forgery, not merely a malformed proof) and grinds to a usable hash
+			EXPECT_NE(Hash512(), proofHash);
+			EXPECT_EQ(GenerateVrfProofHash(forgedProof.Gamma), proofHash);
+		}
+	}
+
+	TEST(TEST_CLASS, VerifyVrfProofAcceptsNeutralKeyForgeryWhenValidationNotRequired) {
+		// Assert: pre-fork behavior performs no optional checks, so the forgery is accepted
+		AssertNeutralKeyForgeryAccepted(VrfProofOptions::None);
+	}
+
+	TEST(TEST_CLASS, VerifyVrfProofAcceptsNeutralKeyForgeryWithCheckPublicKey) {
+		// Assert: the pre-existing strict public key check (u != 0) does not catch the neutral key, because u = s*B != 0,
+		//         so the forgery still passes (motivating the dedicated neutral check)
+		AssertNeutralKeyForgeryAccepted(VrfProofOptions::Check_Public_Key);
+	}
+
+	TEST(TEST_CLASS, VerifyVrfProofRejectsNeutralKeyForgeryWithCheckGamma) {
+		// Arrange:
+		auto forgedProof = CreateForgedProofForNeutralKey();
+
+		// Act: verify requiring gamma to be in the main subgroup
+		auto proofHash = VerifyVrfProof(forgedProof, ForgedNeutralProofAlpha(), NeutralPublicKey(), VrfProofOptions::Check_Gamma);
+
+		// Assert: the out-of-subgroup gamma is rejected
+		EXPECT_EQ(Hash512(), proofHash);
+	}
+
+	TEST(TEST_CLASS, VerifyVrfProofRejectsNeutralKeyForgeryWithCheckPublicKeyNeutral) {
+		// Arrange:
+		auto forgedProof = CreateForgedProofForNeutralKey();
+
+		// Act: verify rejecting a neutral public key
+		auto proofHash = VerifyVrfProof(
+				forgedProof,
+				ForgedNeutralProofAlpha(),
+				NeutralPublicKey(),
+				VrfProofOptions::Check_Public_Key_Neutral);
+
+		// Assert: the neutral public key is rejected
+		EXPECT_EQ(Hash512(), proofHash);
+	}
+
+	TEST(TEST_CLASS, VerifyVrfProofRejectsNeutralKeyForgeryByDefault) {
+		// Arrange:
+		auto forgedProof = CreateForgedProofForNeutralKey();
+
+		// Act: verify with all checks enabled
+		auto proofHash = VerifyVrfProof(forgedProof, ForgedNeutralProofAlpha(), NeutralPublicKey());
+
+		// Assert: the forgery is rejected
 		EXPECT_EQ(Hash512(), proofHash);
 	}
 

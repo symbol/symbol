@@ -156,6 +156,9 @@ namespace catapult { namespace model {
 
 			/// Height of fork at which VRF proofs with an invalid public key are rejected.
 			Height StrictVrfPublicKeyCheck;
+
+			/// Height of fork at which VRF proofs with a gamma outside the main subgroup are rejected.
+			Height VrfGammaSubgroupCheck;
 		};
 
 		/// Fork heights.

@@ -99,11 +99,11 @@ namespace catapult { namespace consumers {
 					const BlockHitPredicateFactory& blockHitPredicateFactory,
 					const chain::BatchEntityProcessor& batchEntityProcessor,
 					ReceiptValidationMode receiptValidationMode,
-					Height strictVrfPublicKeyForkHeight)
+					const VrfForkHeights& vrfForkHeights)
 					: m_blockHitPredicateFactory(blockHitPredicateFactory)
 					, m_batchEntityProcessor(batchEntityProcessor)
 					, m_receiptValidationMode(receiptValidationMode)
-					, m_strictVrfPublicKeyForkHeight(strictVrfPublicKeyForkHeight)
+					, m_vrfForkHeights(vrfForkHeights)
 			{}
 
 		public:
@@ -135,7 +135,7 @@ namespace catapult { namespace consumers {
 						*pParentGenerationHash,
 						blockHitPredicate,
 						readOnlyCache,
-						m_strictVrfPublicKeyForkHeight);
+						m_vrfForkHeights);
 					if (!IsValidationResultSuccess(result))
 						return result;
 
@@ -190,7 +190,7 @@ namespace catapult { namespace consumers {
 					const GenerationHash& parentGenerationHash,
 					const BlockHitPredicate& blockHitPredicate,
 					const cache::ReadOnlyCatapultCache& readOnlyCache,
-					Height strictVrfPublicKeyForkHeight) {
+					const VrfForkHeights& vrfForkHeights) {
 				const auto& block = element.Block;
 				const auto& accountStateCache = readOnlyCache.sub<cache::AccountStateCache>();
 
@@ -203,9 +203,12 @@ namespace catapult { namespace consumers {
 				}
 
 				auto vrfPublicKey = GetVrfPublicKey(accountStateCache, accountStateIter.get().Address);
-				auto vrfProofOptions = block.Height >= strictVrfPublicKeyForkHeight
-						? crypto::VrfProofOptions::Default
-						: crypto::VrfProofOptions::Unsafe_Skip_Valid_Public_Key_Check;
+				auto vrfProofOptions = crypto::VrfProofOptions::None;
+				if (block.Height >= vrfForkHeights.StrictPublicKeyCheck)
+					vrfProofOptions |= crypto::VrfProofOptions::Check_Public_Key;
+
+				if (block.Height >= vrfForkHeights.GammaSubgroupCheck)
+					vrfProofOptions |= crypto::VrfProofOptions::Check_Gamma | crypto::VrfProofOptions::Check_Public_Key_Neutral;
 
 				auto vrfVerifyResult = crypto::VerifyVrfProof(
 					block.GenerationHashProof,
@@ -282,7 +285,7 @@ namespace catapult { namespace consumers {
 			BlockHitPredicateFactory m_blockHitPredicateFactory;
 			chain::BatchEntityProcessor m_batchEntityProcessor;
 			ReceiptValidationMode m_receiptValidationMode;
-			Height m_strictVrfPublicKeyForkHeight;
+			VrfForkHeights m_vrfForkHeights;
 		};
 	}
 
@@ -290,11 +293,7 @@ namespace catapult { namespace consumers {
 			const BlockHitPredicateFactory& blockHitPredicateFactory,
 			const chain::BatchEntityProcessor& batchEntityProcessor,
 			ReceiptValidationMode receiptValidationMode,
-			Height strictVrfPublicKeyForkHeight) {
-		return DefaultBlockchainProcessor(
-			blockHitPredicateFactory,
-			batchEntityProcessor,
-			receiptValidationMode,
-			strictVrfPublicKeyForkHeight);
+			const VrfForkHeights& vrfForkHeights) {
+		return DefaultBlockchainProcessor(blockHitPredicateFactory, batchEntityProcessor, receiptValidationMode, vrfForkHeights);
 	}
 }}

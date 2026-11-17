@@ -77,12 +77,20 @@ namespace catapult { namespace consumers {
 		Enabled
 	};
 
+	/// Heights at which VRF proof verification forks activate.
+	struct VrfForkHeights {
+		/// Height at and above which VRF proofs with an invalid public key are rejected.
+		Height StrictPublicKeyCheck;
+
+		/// Height at and above which VRF proofs with a gamma outside the main subgroup (or a neutral public key) are rejected.
+		Height GammaSubgroupCheck;
+	};
+
 	/// Creates a blockchain processor around the specified block hit predicate factory (\a blockHitPredicateFactory)
-	/// and batch entity processor (\a batchEntityProcessor) with \a receiptValidationMode.
-	/// \a strictVrfPublicKeyForkHeight is the height at and above which VRF proofs with an invalid public key are rejected.
+	/// and batch entity processor (\a batchEntityProcessor) with \a receiptValidationMode and VRF fork heights (\a vrfForkHeights).
 	BlockchainProcessor CreateBlockchainProcessor(
 			const BlockHitPredicateFactory& blockHitPredicateFactory,
 			const chain::BatchEntityProcessor& batchEntityProcessor,
 			ReceiptValidationMode receiptValidationMode,
-			Height strictVrfPublicKeyForkHeight);
+			const VrfForkHeights& vrfForkHeights);
 }}

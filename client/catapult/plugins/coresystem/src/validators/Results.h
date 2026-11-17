@@ -97,6 +97,9 @@ namespace catapult { namespace validators {
 	/// Validation failed because the start epoch is invalid.
 	DEFINE_CORE_RESULT(Link_Start_Epoch_Invalid, 106);
 
+	/// Validation failed because a linked vrf public key is not a valid vrf public key.
+	DEFINE_CORE_RESULT(Invalid_Vrf_Key, 107);
+
 	// endregion
 
 #ifndef CUSTOM_RESULT_DEFINITION

@@ -22,6 +22,7 @@
 #pragma once
 #include "CryptoUtils.h"
 #include "SharedKey.h"
+#include "catapult/utils/BitwiseEnum.h"
 #include "catapult/types.h"
 
 namespace catapult { namespace crypto {
@@ -55,14 +56,24 @@ namespace catapult { namespace crypto {
 #pragma pack(pop)
 
 	/// Options controlling verifiable random function proof verification.
-	enum class VrfProofOptions {
-		/// Performs all checks, rejecting a proof when the public key is not a valid VRF public key.
-		Default,
+	enum class VrfProofOptions : uint8_t {
+		/// Performs no optional checks.
+		None = 0x00,
 
-		/// Skips the public key validity check.
-		/// \note This is unsafe and intended only for testing or verifying historical (pre-fork) proofs.
-		Unsafe_Skip_Valid_Public_Key_Check
+		/// Rejects a proof when the public key is not a valid VRF public key.
+		Check_Public_Key = 0x01,
+
+		/// Rejects a proof when gamma is not in the main subgroup.
+		Check_Gamma = 0x02,
+
+		/// Rejects a proof when the public key is the neutral element.
+		Check_Public_Key_Neutral = 0x04,
+
+		/// Performs all checks.
+		Default = Check_Public_Key | Check_Gamma | Check_Public_Key_Neutral
 	};
+
+	MAKE_BITWISE_ENUM(VrfProofOptions)
 
 	/// Generates a verifiable random function proof from \a alpha and \a keyPair.
 	VrfProof GenerateVrfProof(const RawBuffer& alpha, const KeyPair& keyPair);

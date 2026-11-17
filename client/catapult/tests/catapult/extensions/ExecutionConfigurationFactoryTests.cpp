@@ -71,6 +71,7 @@ namespace catapult { namespace extensions {
 
 			// key link transactions
 			"VrfKeyLinkValidator",
+			"VrfKeyLinkPublicKeyValidator",
 			"VotingMultiKeyLinkValidator"
 		};
 		EXPECT_EQ(expectedValidatorNames, config.pValidator->names());

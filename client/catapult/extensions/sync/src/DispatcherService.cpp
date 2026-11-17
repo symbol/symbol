@@ -161,7 +161,7 @@ namespace catapult { namespace sync {
 					blockHitPredicateFactory,
 					chain::CreateBatchEntityProcessor(executionConfig),
 					GetReceiptValidationMode(blockchainConfig),
-					blockchainConfig.ForkHeights.StrictVrfPublicKeyCheck);
+					{ blockchainConfig.ForkHeights.StrictVrfPublicKeyCheck, blockchainConfig.ForkHeights.VrfGammaSubgroupCheck });
 		}
 
 		BlockchainSyncHandlers CreateBlockchainSyncHandlers(extensions::ServiceState& state, RollbackInfo& rollbackInfo) {

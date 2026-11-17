@@ -90,6 +90,7 @@ namespace catapult { namespace plugins {
 
 					// key link transactions
 					"VrfKeyLinkValidator",
+					"VrfKeyLinkPublicKeyValidator",
 					"VotingMultiKeyLinkValidator"
 				};
 			}
