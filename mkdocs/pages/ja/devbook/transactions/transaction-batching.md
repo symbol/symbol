@@ -52,7 +52,7 @@ digraph {
 
 自身のアカウントを使用する場合は、以下の手順を完了してください。
 
-* バッチトランザクションを送信するためのアカウントを、[コード](../accounts/create-from-private-key.md)または[ウォレット](../../userbook/wallet/create-account.md)を使用して 作成します。
+* バッチトランザクションを送信するためのアカウントを、[コード](../accounts/create-from-private-key.md)または[ウォレット](../../userbook/desktop-wallet/create-account.md)を使用して 作成します。
 
 * トランザクション手数料と転送額を支払うための XYM を入手します。[蛇口 (Faucet) からテストネットの通貨を入手する](../accounts/testnet-faucet.md) を参照してください。
 
