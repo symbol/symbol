@@ -18,5 +18,5 @@ Textbook は、以下のセクションで構成されています。
 | 状態とアセット | [モザイク](./mosaics.md), [ネームスペース](./namespaces.md), [メタデータ](./metadata.md), [制限](./restrictions.md) |
 | ブロックチェーンの構造 | [ブロック](./blocks.md), [コンセンサス](./consensus.md) |
 | ネットワークと運用 | [ノード](./nodes.md), [ハーベスティング](./harvesting.md) |
-| 高度なトピック | [クロスチェーンスワップ](./cross-chain-swaps.md) |
+| 高度なトピック | [クロスチェーンスワップ](./cross-chain-swaps.md), [他のネットワークへのトークンブリッジ](./bridge.md) |
 | 実装 | [Catapult](./catapult.md), [CATS DSL](./cats.md) |

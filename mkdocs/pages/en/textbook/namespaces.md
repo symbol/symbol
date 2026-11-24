@@ -109,7 +109,8 @@ The fee depends on current network conditions and the type of namespace:
 * **Subnamespace**: The fee does not depend on the parent namespace's duration.
 
 The cost of the lease can be determined beforehand by querying the network,
-and applications like the [Symbol Wallet](../userbook/wallet/install.md) typically display this information.
+and applications like the [Symbol Desktop Wallet](../userbook/desktop-wallet/install.md) typically display this
+information.
 
 The fee must be paid at the time of registration or renewal, and is non-refundable.
 It is paid to a _sink account_, an account managed by the Symbol team, that collects namespace rental fees for protocol
